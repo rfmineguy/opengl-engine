@@ -5,7 +5,7 @@
 #include "../window/inputData.h"
 #include "../window/windowData.h"
 #include <cmath>
-#include "../util/randomUtil.h"
+#include "../util/mathUtil.h"
 
 namespace test {
     TestShaderDev::TestShaderDev() {
@@ -60,7 +60,6 @@ namespace test {
     void TestShaderDev::ImGuiRender() {
         ImGui::Text("Cursor captured %d", Input.mouseCaptured);
         ImGui::Text("Cursor offset %d", Input.mouseOffsetY);
-        ImGui::Text("Mouse pos {%d, %d}", Input.mouseX, Input.mouseY);
         
         vec3 camPos = camera.GetPos();
         ImGui::Text("Cam pos {%0.4f, %0.4f}", camPos.x, camPos.y); 

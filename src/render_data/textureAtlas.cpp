@@ -9,7 +9,6 @@
 
 TextureAtlas::TextureAtlas(std::string atlasPath)
 :atlasPath(atlasPath){
-
     ParseAtlas(); 
 }
 
@@ -22,7 +21,6 @@ TextureAtlas::~TextureAtlas() {
  *   - rest   -> [name xcell ycell]
  */
 void TextureAtlas::ParseAtlas() {
-
     std::cout << std::endl << std::endl << "start ParseAtlas()" << std::endl;
     int currentLine = 0;
     std::ifstream ifs("res/textures/" + atlasPath + "/testing.atlas");
@@ -40,7 +38,7 @@ void TextureAtlas::ParseAtlas() {
         subTexWidth = std::stoi(tokens[0]);
         subTexHeight = std::stoi(tokens[1]);
         srcImageName = tokens[2];
-        std::cout << "tokens[2] - " << srcImageName << std::endl;
+        //std::cout << "tokens[2] - " << srcImageName << std::endl;
         Load((atlasPath + "/" + srcImageName).c_str());
         std::cout << "Fully loaded texture successfully" << std::endl;
 
@@ -51,11 +49,14 @@ void TextureAtlas::ParseAtlas() {
         while (getline(ifs, s)) {
             if (s.empty()) continue;
             eraseCharacters(s, "[]");
-            tokens.clear();
             tokens = splitBy(s, ' ');//[0]->name  [1]->x  [2]->y
+            
+            /*for (int i = 0; i < tokens.size(); i++) {
+                std::cout << tokens[i] << std::endl;
+            }*/
 
             Region region = SubRegion(charToInt(tokens[1][0]), charToInt(tokens[2][0]));
-            region.Print();
+            std::cout << tokens[0] << " : " << region.ToString() << std::endl;
             map.emplace(
                     tokens[0],
                     region
@@ -75,12 +76,18 @@ void TextureAtlas::ParseAtlas() {
  * br_y = tl_y - (1.0 / cellsTall)
  */
 Region TextureAtlas::SubRegion(int col, int row) {
-    double topLeftX = (1.0 / cellsWide) * col; //  top left texture coordinate
-    double topLeftY = 1 - ((1.0 / cellsTall) * row); //
-    double bottomRightX = topLeftX + (1.0 / cellsWide);
-    double bottomRightY = topLeftY - (1.0 / cellsTall);
+    std::cout << "Col : " << col << "  Row : " << row << std::endl;
+    float topLeftX = (1.0 / cellsWide) * col; //  top left texture coordinate
+    float topLeftY = 1 - ((1.0 / cellsTall) * row); //
+    float bottomRightX = topLeftX + (1.0 / cellsWide);
+    float bottomRightY = topLeftY - (1.0 / cellsTall);
 
-    return { glm::vec2(topLeftX, topLeftY), glm::vec2(bottomRightX, bottomRightY) };
+    return { 
+        glm::vec2(bottomRightX, topLeftY),      //top-right
+        glm::vec2(topLeftX, topLeftY),          //top-left
+        glm::vec2(bottomRightX, bottomRightY),  //bottom-right
+        glm::vec2(topLeftX, bottomRightY),       //bottom-left
+    };
 }
 
 Region TextureAtlas::GetRegion(std::string name) {

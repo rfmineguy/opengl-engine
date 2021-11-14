@@ -1,4 +1,6 @@
 [32 32 testing.png]
 
-[bigx  0 0]
+[bigx 0 0]
 [check 1 0]
+[player 2 0]
+[hi 1 2]

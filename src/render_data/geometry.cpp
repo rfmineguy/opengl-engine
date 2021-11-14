@@ -30,9 +30,8 @@ Vertex& Geometry::GetVertex(int index) {
 void Geometry::Print() {
     for (int i = 0; i < mVertices.size(); i++) {
         Vertex v = mVertices.at(i);
-        printf("{x=%0.4f y=%0.4f z=%0.4f} {r=%0.4f g=%0.4f b=%0.4f} {texX=%0.4f texY=%0.4f}\n"
+        printf("{x=%0.4f y=%0.4f z=%0.4f} {texX=%0.4f texY=%0.4f}\n"
                 , v.pos.x, v.pos.y, v.pos.z
-                , v.col.r, v.col.g, v.col.b
                 , v.texCoord.x, v.texCoord.y);
     }
     for (int i = 0; i < mIndices.size(); i+=6) { 

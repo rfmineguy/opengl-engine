@@ -12,7 +12,7 @@ inline void eraseCharacters(std::string& s, std::string chars) {
 }
 
 inline int charToInt(char c) {
-    return static_cast<int>(c);
+    return static_cast<int>(c) - 48;
 }
 
 inline std::vector<std::string> splitBy(std::string s, char delim) {

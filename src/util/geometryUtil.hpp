@@ -10,17 +10,17 @@ inline Geometry& initQuad(Geometry& geometry, Region region) {
     //  color
     //  texCoord
     vec2 topLeftTex = region.topleft;
-    vec2 topRightTex = vec2(region.bottomright.x, region.topleft.y);
-    vec2 bottomLeftTex = vec2(region.topleft.x, region.bottomright.y);
+    vec2 topRightTex = region.topright;
+    vec2 bottomLeftTex = region.bottomleft;
     vec2 bottomRightTex = region.bottomright;
 
     //defaults
     //size 1x1
     //color white
-    geometry.AddVertex({ vec3 ( 1.0f,  1.0f, 0.0f ), vec3(1.0f ), topRightTex});  //top right
-    geometry.AddVertex({ vec3 ( 1.0f,  0.0f, 0.0f ), vec3(1.0f ), bottomRightTex});  //bottom right
-    geometry.AddVertex({ vec3 ( 0.0f,  0.0f, 0.0f ), vec3(1.0f ), bottomLeftTex});  //bottom left
-    geometry.AddVertex({ vec3 ( 0.0f,  1.0f, 0.0f ), vec3(1.0f ), topLeftTex});  //top left
+    geometry.AddVertex({ vec3 ( 1.0f,  1.0f, 0.0f ), topRightTex});  //top right
+    geometry.AddVertex({ vec3 ( 1.0f,  0.0f, 0.0f ), bottomRightTex});  //bottom right
+    geometry.AddVertex({ vec3 ( 0.0f,  0.0f, 0.0f ), bottomLeftTex});  //bottom left
+    geometry.AddVertex({ vec3 ( 0.0f,  1.0f, 0.0f ), topLeftTex});  //top left
      
     //indices should be 24 bytes
     geometry.SetElements({0, 1, 3, 1, 2, 3});
@@ -38,15 +38,15 @@ inline Geometry& initCube(Geometry& geometry, Region region) {
     vec2 bottomLeftTex = vec2(region.topleft.x, region.bottomright.y);
     vec2 bottomRightTex = region.bottomright;
     
-    geometry.AddVertex({ vec3 (-1.0f, -1.0f, 0.5f), vec3(1.0f), topLeftTex});
-    geometry.AddVertex({ vec3 ( 1.0f, -1.0f, 0.5f), vec3(1.0f), bottomRightTex});
-    geometry.AddVertex({ vec3 (-1.0f,  1.0f, 0.5f), vec3(1.0f), topLeftTex});
-    geometry.AddVertex({ vec3 ( 1.0f,  1.0f, 0.5f), vec3(1.0f), bottomRightTex});
+    geometry.AddVertex({ vec3 (-1.0f, -1.0f, 0.5f), topLeftTex});
+    geometry.AddVertex({ vec3 ( 1.0f, -1.0f, 0.5f), bottomRightTex});
+    geometry.AddVertex({ vec3 (-1.0f,  1.0f, 0.5f), topLeftTex});
+    geometry.AddVertex({ vec3 ( 1.0f,  1.0f, 0.5f), bottomRightTex});
 
-    geometry.AddVertex({ vec3 (-1.0f, -1.0f, -0.5f), vec3(1.0f), topLeftTex});
-    geometry.AddVertex({ vec3 ( 1.0f, -1.0f, -0.5f), vec3(1.0f), bottomRightTex});
-    geometry.AddVertex({ vec3 (-1.0f,  1.0f, -0.5f), vec3(1.0f), topLeftTex});
-    geometry.AddVertex({ vec3 ( 1.0f,  1.0f, -0.5f), vec3(1.0f), bottomRightTex});
+    geometry.AddVertex({ vec3 (-1.0f, -1.0f, -0.5f), topLeftTex});
+    geometry.AddVertex({ vec3 ( 1.0f, -1.0f, -0.5f), bottomRightTex});
+    geometry.AddVertex({ vec3 (-1.0f,  1.0f, -0.5f), topLeftTex});
+    geometry.AddVertex({ vec3 ( 1.0f,  1.0f, -0.5f), bottomRightTex});
     
     geometry.SetElements({        
         //Top

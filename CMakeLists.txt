@@ -11,21 +11,28 @@ file(COPY res DESTINATION ${CMAKE_BINARY_DIR})
 
 set(SOURCES 
     src/main.cpp
+    
     src/window/window.cpp
+
     src/render_data/shader.cpp
     src/render_data/geometry.cpp
     src/render_data/texture.cpp
     src/render_data/textureAtlas.cpp
+    
     src/renderer/batch.cpp
     src/renderer/instancedRenderer.cpp
     src/renderer/basicRenderer2d.cpp
     src/renderer/orthoCamera.cpp
     src/renderer/perspectiveCamera.cpp
+    
     src/test/test.cpp
     src/test/testClearColor.cpp
     src/test/testTriangle.cpp
     src/test/testShaderDev.cpp
     src/test/testGame.cpp
+    
+    src/game_object/gameObject.cpp
+
     vendor/glad/glad.c
     )
 

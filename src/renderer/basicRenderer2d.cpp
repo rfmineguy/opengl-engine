@@ -1,6 +1,5 @@
 #include "basicRenderer2d.h"
 #include "../util/geometryUtil.hpp"
-//#include "../util/randomUtil.h"
 #include <glm/ext/matrix_transform.hpp>
 #include "../components/components.h"
 
@@ -28,13 +27,11 @@ shader("experimental") {
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(struct Vertex, pos));
     glEnableVertexAttribArray(0);
 
-    //color attribute
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(struct Vertex, col));
-    glEnableVertexAttribArray(1);
-
+    glGenBuffers(1, &textureVbo);
+    glBindBuffer(GL_ARRAY_BUFFER, textureVbo);
     //tex coord attribe
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(struct Vertex, texCoord));
-    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*) 0);
+    glEnableVertexAttribArray(1);
 }
 
 BasicRenderer2D::~BasicRenderer2D() {
@@ -46,23 +43,27 @@ BasicRenderer2D::~BasicRenderer2D() {
     quad.mIndices.clear();
 }
 
-/*
-void BasicRenderer2D::AddTransform(Transform& transform) {
-    transforms.push_back(transform);
-}
-*/
 
-void BasicRenderer2D::Draw(entt::registry& reg) {
+//TODO : Make Renderable work
+void BasicRenderer2D::Draw(std::vector<GameObject>& gameObjects) {
+    drawWireframe ?
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE):
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    
     textureAtlas.Bind();
     shader.Bind();
     glBindVertexArray(vao);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-   
-    drawCalls = 0; 
-    auto view = reg.view<Transform>();
-    for (auto entity : view) {
-        auto &transform = view.get<Transform>(entity);
-        
+  
+    drawCalls = 0;
+    for (GameObject go : gameObjects) {
+        Transform& transform = go.GetComponent<Transform>();
+        Renderable& renderable = go.GetComponent<Renderable>(); //contains texture coordinates into the active texture atlas via @Region
+
+        if (renderable.region.empty) {
+            renderable.region = textureAtlas.GetRegion(renderable.textureName);
+            renderable.region.empty = false;
+        }
         //
         //  CALCULATE MODELMATRIX
         //
@@ -73,6 +74,18 @@ void BasicRenderer2D::Draw(entt::registry& reg) {
         model = glm::rotate(model, glm::radians(transform.rotation), glm::vec3(0, 0, 1));
         model = glm::translate(model, -glm::vec3(0.5f, 0.5f, 0.0f));
 
+        //texturing
+        glm::vec2 texCoord[4];
+        texCoord[1] = renderable.region.topright; //topright
+        texCoord[0] = renderable.region.bottomright; //bottomright
+        texCoord[3] = renderable.region.bottomleft; //bottomleft
+        texCoord[2] = renderable.region.topleft; //topleft
+
+        //glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*) 0);
+        //glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesSize, quad.mIndices.data(), GL_STATIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, textureVbo);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(texCoord[0]) * 4, &texCoord[0], GL_STATIC_DRAW);
+
         //
         //  DRAW VAO
         //
@@ -80,25 +93,10 @@ void BasicRenderer2D::Draw(entt::registry& reg) {
         glDrawElements(GL_TRIANGLES, quad.mIndices.size(), GL_UNSIGNED_INT, 0);
         drawCalls++;
     }
-    
+}
 
-/*
-    for (int i = 0; i < transforms.size(); i++) {
-        glm::mat4 model = glm::mat4(1.0);
-
-        //1 translate to position
-        //2 translate to center of sprite
-        //3 scale
-        //4 rotate
-        //5 translate back to corner of sprite
-        model = glm::translate(model, transforms[i].pos);
-        model = glm::translate(model, transforms[i].centerOffset);
-        model = glm::scale(model, transforms[i].scale);
-        model = glm::rotate(model, glm::radians(transforms[i].rotation), glm::vec3(0, 0, 1));
-        model = glm::translate(model, -transforms[i].centerOffset);
-        shader.Set4fv("model", model);
-        glDrawElements(GL_TRIANGLES, quad.mIndices.size(), GL_UNSIGNED_INT, 0);
-        drawCalls++;
-    }
-    */
+void BasicRenderer2D::Cleanup() {
+    textureAtlas.Unbind();
+    shader.Unbind();
+    textureAtlas.Unbind();
 }

@@ -1,6 +1,8 @@
 #include "test.h"
 #include "../renderer/basicRenderer2d.h"
+//#include "../renderer/instancedRenderer.h"
 #include "../renderer/orthoCamera.h"
+#include "../game_object/gameObject.h"
 
 namespace test {
     class TestGame : public Test {
@@ -14,8 +16,10 @@ namespace test {
         void ImGuiRender() override;
 
     private:
+        //InstancedRenderer renderer;
         BasicRenderer2D renderer;
         OrthoCamera camera;
         entt::registry reg;
+        std::vector<GameObject> objects;
     };
 }

@@ -1,6 +1,8 @@
 #pragma once
 #include <glm/gtc/matrix_transform.hpp>
 #include <string>
+#include "../render_data/region.h"
+#include "../render_data/textureAtlas.h"
 
 /* Transform component
  *   position, scale, rotation
@@ -37,20 +39,22 @@ struct Identifier {
     std::string id;
 };
 
-/* SpriteRenderer component
- *   meant as a container for rendering a given geometry
- *   WIP - not sure how to design this
+/* Renderable
+ *   gives the ability to render a GameObject with a texture
  */
-struct SpriteRenderer {
-
+struct Renderable {
+    std::string textureName;
+    Region region;
 };
 
 /* Animator component
  *   a controller for the sprite renderer (dependent on it)
  *   the sprite renderer must have a spritesheet
  */
-struct Animator {
-    float speed;
+struct AnimatedRenderable {
+    TextureAtlas textureAtlas;
+
+    int delay;
     int currentFrame;
     int nextFrame;
     bool looping;

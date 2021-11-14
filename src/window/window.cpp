@@ -49,16 +49,16 @@ void keyboardCallback(GLFWwindow* window, int key, int scancode, int action, int
 
 void mouseMoveCallback(GLFWwindow* window, double xpos, double ypos) {
     if (/*Input.mouseCaptured &&*/ glfwGetWindowAttrib(window, GLFW_HOVERED)) {
-        Input.lastMouseX = Input.mouseX;
-        Input.lastMouseY = Input.mouseY;
+        Input.lastMouseX = Input.mouse.x;
+        Input.lastMouseY = Input.mouse.y;
         
         if (xpos < WinData.windowWidth && xpos > 0)
-            Input.mouseX = xpos;
+            Input.mouse.x = xpos;
         if (ypos < WinData.windowHeight && ypos > 0)
-            Input.mouseY = ypos;
+            Input.mouse.y = ypos;
         
-        Input.mouseOffsetX = Input.mouseX - Input.lastMouseX;
-        Input.mouseOffsetY = Input.mouseY - Input.lastMouseY;
+        Input.mouseOffsetX = Input.mouse.x - Input.lastMouseX;
+        Input.mouseOffsetY = Input.mouse.y - Input.lastMouseY;
     } else {
         Input.mouseOffsetX = 0.f;
         Input.mouseOffsetY = 0.f;
@@ -73,10 +73,10 @@ void mouseScrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
 
 void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
     if (action == GLFW_PRESS) {
-        Input.mouse[button] = true;
+        Input.buttons[button] = true;
     }
     else if (action == GLFW_RELEASE) {
-        Input.mouse[button] = false;
+        Input.buttons[button] = false;
     }
 }
 
@@ -135,7 +135,7 @@ void Window::InitGlad() {
     Input.mouseCaptured = glfwGetInputMode(window, GLFW_CURSOR);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
-    glEnable(GL_DEPTH_TEST);
+    //glEnable(GL_DEPTH_TEST);
 }
 
 void Window::InitImGui() {
@@ -161,7 +161,8 @@ void Window::Update() {
         testMenu->RegisterTest<test::TestTriangle>("Test Triangle");
         testMenu->RegisterTest<test::TestShaderDev>("Test Shader Dev");
         testMenu->RegisterTest<test::TestGame>("Test Game");
-
+        
+        bool currentTestDeleted = false;
         while (!glfwWindowShouldClose(window)) {
 
             Input.scrollXOffset = 0;
@@ -194,7 +195,9 @@ void Window::Update() {
                 ImGui::Begin("Test");
                 
                 if (currentTest != testMenu && ImGui::Button("<-")) {
+                    std::cout << "Deleting currentTest" << std::endl;
                     delete currentTest;
+                    std::cout << "Deleted currentTest" << std::endl;
                     currentTest = testMenu;
                 }
 
@@ -216,6 +219,9 @@ void Window::Update() {
         //      - compiler automatically deletes stack allocated pointers
         //        (i.e currentTest) and when I deleted it, it no longer existed
         //        for the compiler to delete
+        if (!currentTestDeleted) {
+            //delete currentTest;
+        }
         if (testMenu) {
             delete testMenu;
             std::cout << "Deleted testmenu" << std::endl;

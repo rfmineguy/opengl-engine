@@ -6,13 +6,13 @@ Geometry::Geometry() {}
 
 Geometry::~Geometry() {
     mVertices.clear();
-    delete mVertices.data();
+    
+    //BAAAD
+    //delete mVertices.data();
 }
 
 void Geometry::AddVertex(Vertex v) {
     mVertices.push_back(v);
-    size_t bytes = sizeof(mVertices[0]) * mVertices.size(); 
-    std::cout << "Size : " << mVertices.size() << "  " << bytes << std::endl;
 }
 
 void Geometry::SetElements(std::vector<unsigned int> indices) {

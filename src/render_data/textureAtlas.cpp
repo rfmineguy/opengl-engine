@@ -6,13 +6,56 @@
 #include <algorithm>
 #include <string>
 #include <type_traits>
+#include "../util/log.h"
 
-TextureAtlas::TextureAtlas(std::string atlasPath)
-:atlasPath(atlasPath){
+TextureAtlas::TextureAtlas(std::string atlasName) : Texture(),
+atlasName(atlasName){
     ParseAtlas(); 
 }
 
 TextureAtlas::~TextureAtlas() {
+    LOG_WARN("Deleting textureAtlas [{0}]", atlasName);
+}
+
+TextureAtlas::TextureAtlas(TextureAtlas&& other) {
+    //assign other to this
+    LOG_WARN("Moved textureAtlas {0}", other.atlasName);
+    atlasName = std::move(other.atlasName);
+    srcImageName = std::move(other.srcImageName);
+    map = std::move(other.map);
+    subTexWidth = other.subTexWidth;
+    subTexHeight = other.subTexHeight;
+    cellsWide = other.cellsWide;
+    cellsTall = other.cellsTall;
+
+    //deinitialize other
+    other.atlasName = "";
+    other.srcImageName = "";
+    other.subTexWidth = 0;
+    other.subTexHeight = 0;
+    other.cellsWide = 0;
+    other.cellsTall = 0;
+}
+
+TextureAtlas& TextureAtlas::operator = (TextureAtlas&& other) {
+    LOG_WARN("Assigned TextureAtlas {0}", other.atlasName);
+    atlasName = std::move(other.atlasName);
+    srcImageName = std::move(other.srcImageName);
+    map = std::move(other.map);
+    subTexWidth = other.subTexWidth;
+    subTexHeight = other.subTexHeight;
+    cellsWide = other.cellsWide;
+    cellsTall = other.cellsTall;
+
+    //deinitialize other
+    other.atlasName = nullptr;
+    other.srcImageName = nullptr;
+    other.subTexWidth = 0;
+    other.subTexHeight = 0;
+    other.cellsWide = 0;
+    other.cellsTall = 0;
+
+    return *this;
 }
 
 /*
@@ -21,11 +64,16 @@ TextureAtlas::~TextureAtlas() {
  *   - rest   -> [name xcell ycell]
  */
 void TextureAtlas::ParseAtlas() {
-    std::cout << std::endl << std::endl << "start ParseAtlas()" << std::endl;
+    LOG_INFO("ParseAtlas started");
+   
+    cellsWide = 4;
+    cellsTall = 4;
+
     int currentLine = 0;
-    std::ifstream ifs("res/textures/" + atlasPath + "/testing.atlas");
+    std::string searchPath = "res/atlases/" + atlasName + ".atlas";
+    std::ifstream ifs(searchPath);
     if (ifs.fail()) {
-        std::cerr << "Failed to open file : " << atlasPath << std::endl;
+        LOG_ERROR("Failed to open file {0}", searchPath);
     }
     else {
         std::string s;
@@ -34,14 +82,28 @@ void TextureAtlas::ParseAtlas() {
         getline(ifs, s);
         eraseCharacters(s, "[]");
         std::vector<std::string> tokens = splitBy(s, ' ');
+        LOG_INFO("{}", tokens.size());
+        for (std::string s : tokens) {
+            LOG_INFO("{}", s);
+        }
 
         subTexWidth = std::stoi(tokens[0]);
         subTexHeight = std::stoi(tokens[1]);
+        LOG_INFO("{} {}", subTexWidth, subTexHeight);
         srcImageName = tokens[2];
         //std::cout << "tokens[2] - " << srcImageName << std::endl;
-        Load((atlasPath + "/" + srcImageName).c_str());
-        std::cout << "Fully loaded texture successfully" << std::endl;
-
+        /**
+         *  atlasPath = "testAtlas"
+         *  srcImageName = "texture.png"
+         *  sent -> "testAtlas/texture.png"
+         */
+        int loadStatus = CleanAndChange(srcImageName, true);
+        if (loadStatus != 0) {
+            LOG_ERROR("Failed to load texture {0}", srcImageName);
+        }
+        else {
+            LOG_INFO("Loaded texture {0}", srcImageName);
+        }
         cellsWide = mWidth / subTexWidth;
         cellsTall = mHeight / subTexHeight;
     
@@ -56,15 +118,13 @@ void TextureAtlas::ParseAtlas() {
             }*/
 
             Region region = SubRegion(charToInt(tokens[1][0]), charToInt(tokens[2][0]));
-            std::cout << tokens[0] << " : " << region.ToString() << std::endl;
             map.emplace(
                     tokens[0],
                     region
                 );
-            std::cout << "Inserted successfully" << std::endl;
         }
     }
-    std::cout << "end ParseAtlas()" << std::endl;
+    LOG_INFO("Finished ParseAtlas\n");
 }
 /*
  * col = 1
@@ -74,9 +134,10 @@ void TextureAtlas::ParseAtlas() {
  * tl_y = 1 - ((1.0 / cellsTall) * row)
  * br_x = tl_x + (1.0 / cellsWide)
  * br_y = tl_y - (1.0 / cellsTall)
+ *
+ * TODO: the problem is here
  */
 Region TextureAtlas::SubRegion(int col, int row) {
-    std::cout << "Col : " << col << "  Row : " << row << std::endl;
     float topLeftX = (1.0 / cellsWide) * col; //  top left texture coordinate
     float topLeftY = 1 - ((1.0 / cellsTall) * row); //
     float bottomRightX = topLeftX + (1.0 / cellsWide);
@@ -92,15 +153,16 @@ Region TextureAtlas::SubRegion(int col, int row) {
 
 Region TextureAtlas::GetRegion(std::string name) {
     if (map.find(name) == map.end()) {
-        std::cerr << "Not a valid region" << std::endl;
+        LOG_ERROR("{0} is an invalid region", name);
+        return {};
     }
     return map.at(name);
 }
 
 void TextureAtlas::Print() {
     for (auto pair : map) {
-        printf("%s :: {%0.4f %0.4f} {%0.4f %0.4f}\n",
-                pair.first.c_str(),
+        LOG_INFO("\t {} \t\t- [{:03.2f} {:03.2f}] [{:03.2f} {:03.2f}]",
+                pair.first.c_str(), 
                 pair.second.topleft.x, pair.second.topleft.y,
                 pair.second.bottomright.x, pair.second.bottomright.y);
     }

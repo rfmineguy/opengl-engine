@@ -1,12 +1,23 @@
 #pragma once
 #include "texture.h"
 #include "region.h"
-#include <string>
 #include <map>
 
 class TextureAtlas : public Texture {
 public:
-    TextureAtlas(std::string atlasPath);
+    TextureAtlas() = default;
+    TextureAtlas(std::string atlasName);
+    
+    //delete copy ctor
+    TextureAtlas(const TextureAtlas&) = delete;
+    //delete copy assignment operator
+    TextureAtlas& operator=(TextureAtlas&) = delete;
+
+    //move ctor
+    TextureAtlas(TextureAtlas&& other);
+    //move assignment operator
+    TextureAtlas& operator=(TextureAtlas&& other);
+
     ~TextureAtlas();
     Region SubRegion(int col, int row);
     Region GetRegion(std::string name);
@@ -15,8 +26,10 @@ public:
 private:
     void ParseAtlas();
 
+public:
+    std::string atlasName;
+
 private:
-    std::string atlasPath;
     std::string srcImageName;
     std::map<std::string, Region> map;
 

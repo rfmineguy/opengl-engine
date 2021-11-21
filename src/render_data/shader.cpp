@@ -1,6 +1,8 @@
-#include "shader.h"
-#include "../util/glUtil.h"
 #include <string>
+
+#include "shader.h"
+#include "../util/fileUtil.h"
+#include "../util/log.h"
 
 Shader::Shader(std::string tag)
     :tag(tag)
@@ -8,11 +10,61 @@ Shader::Shader(std::string tag)
     CleanAndChange(tag, true);
 }
 
+Shader::Shader(Shader&& other)
+{
+    tag = std::move(other.tag);
+    vertPath = std::move(other.vertPath);
+    fragPath = std::move(other.fragPath);
+    vertexSource = std::move(other.vertexSource);
+    fragmentSource = std::move(other.fragmentSource);
+    fragmentHandle = other.fragmentHandle;
+    vertexHandle = other.vertexHandle;
+    shaderProgramHandle = other.shaderProgramHandle;
+    uniformCache = std::move(other.uniformCache);
+
+    other.tag = "";
+    other.vertPath = "";
+    other.fragPath = "";
+    other.vertexSource = "";
+    other.fragmentSource = "";
+    other.fragmentHandle = -1;
+    other.vertexHandle = -1;
+    other.shaderProgramHandle = -1;
+    other.uniformCache.clear();
+    LOG_INFO("Moved shader [{}]", tag);
+}
+
+Shader& Shader::operator=(Shader&& other) {
+    tag = std::move(other.tag);
+    vertPath = std::move(other.vertPath);
+    fragPath = std::move(other.fragPath);
+    vertexSource = std::move(other.vertexSource);
+    fragmentSource = std::move(other.fragmentSource);
+    fragmentHandle = other.fragmentHandle;
+    vertexHandle = other.vertexHandle;
+    shaderProgramHandle = other.shaderProgramHandle;
+    uniformCache = std::move(other.uniformCache);
+
+    other.tag = "";
+    other.vertPath = "";
+    other.fragPath = "";
+    other.vertexSource = "";
+    other.fragmentSource = "";
+    other.fragmentHandle = -1;
+    other.vertexHandle = -1;
+    other.shaderProgramHandle = -1;
+    other.uniformCache.clear();
+    return *this;
+}
+
 Shader::~Shader() {
+    LOG_WARN("Deleted shader[{0}]", tag);
+    glDeleteProgram(shaderProgramHandle);
 }
 
 //default first = false
 void Shader::CleanAndChange(std::string _tag, bool first) {
+    LOG_INFO("Shader CleanAndChange {}", _tag);
     //don't recompile the shader if its already the right shader
     if (!first && tag == _tag) {
         std::cout << "Shader is already using " << _tag << std::endl;
@@ -23,14 +75,15 @@ void Shader::CleanAndChange(std::string _tag, bool first) {
     glDeleteProgram(shaderProgramHandle);
 
     //create new shader program with the new shader source
-    vertPath = "res/shader/" + tag + "/vert.glsl";
-    fragPath = "res/shader/" + tag + "/frag.glsl";
+    vertPath = "res/shader/" + _tag + "/vert.glsl";
+    fragPath = "res/shader/" + _tag + "/frag.glsl";
     Init();
 }
 
 void Shader::Init() {
-    readFile(vertPath, vertexSource);
-    readFile(fragPath, fragmentSource);
+    LOG_INFO("Initializing Shader {}", tag);
+    readFile(vertPath, vertexSource);       //fileUtil.h
+    readFile(fragPath, fragmentSource);     // -
     
     int success;
     char infoLog[512];
@@ -45,9 +98,9 @@ void Shader::Init() {
     glGetShaderiv(vertexHandle, GL_COMPILE_STATUS, &success);
     if (!success) {
         glGetShaderInfoLog(vertexHandle, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+        LOG_ERROR("Vertex Shader compilation failed");
     } else {
-        std::cout << "Compiled Vertex Shader : " << vertexHandle << std::endl;
+        LOG_INFO("Vertex Shader compilation succeeded");
     }
 
     //FRAGMENT SHADER
@@ -59,9 +112,9 @@ void Shader::Init() {
     glGetShaderiv(fragmentHandle, GL_COMPILE_STATUS, &success);
     if (!success) {
         glGetShaderInfoLog(vertexHandle, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
+        LOG_ERROR("Fragment Shader compilation failed");
     } else {
-        std::cout << "Compiled Fragment Shader : " << fragmentHandle << std::endl;
+        LOG_INFO("Frament Shader compilation succeeded"); 
     }
     
     //LINK PROGRAM
@@ -72,14 +125,12 @@ void Shader::Init() {
     glGetProgramiv(shaderProgramHandle, GL_LINK_STATUS, &success);
     if (!success) {
         glGetProgramInfoLog(shaderProgramHandle, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+        LOG_ERROR("Shader Program linking failed");
     } else {
-        std::cout << "Linked Shader Program : " << shaderProgramHandle << std::endl;
+        LOG_INFO("Shader Program linking succeeded");
     }
     glDeleteShader(fragmentHandle);
     glDeleteShader(vertexHandle);
-
-    std::cout << "Frag -> " << fragmentHandle << " Vert -> " << vertexHandle << " Program -> " << shaderProgramHandle << std::endl;
 }
 
 void Shader::Bind() {
@@ -120,15 +171,6 @@ void Shader::Set4fv(const char* name, glm::mat4 mat) {
     glUniformMatrix4fv(location, 1, GL_FALSE, &mat[0][0]);
 }
 
-/*
-void Shader::SetVec2Array(const char *name, std::vector<Transform> transforms) {
-    int location = GetLocation(name);
-    for (int i = 0; i < transforms.size(); i++) {
-        Set2f(("offsets[" + std::to_string(i) + "]").c_str(), transforms[i].pos.x, transforms[i].pos.y);
-    }
-}
-*/
-
 int Shader::GetLocation(const char* name) {
     glUseProgram(shaderProgramHandle);
     if (uniformCache.find(name) != uniformCache.end()) {
@@ -136,7 +178,7 @@ int Shader::GetLocation(const char* name) {
     }
     int location = glGetUniformLocation(shaderProgramHandle, name);
     if (location == -1) {
-        std::cerr << "Uniform requested [" << name << "] doesn't exist in the shader program \'" << tag << "\'." << std::endl;
+        LOG_ERROR("Requested uniform {0} not found in {1}", name, tag);
         return -1;
     }
     uniformCache.emplace(name, location);

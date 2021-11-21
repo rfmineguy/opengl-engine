@@ -21,6 +21,7 @@ public:
     void InitWindow(const char* title, int width, int height);
     void InitGlad();
     void InitImGui();
+    void InitLogging();
 
 private:
     bool resizeUpdate = false;

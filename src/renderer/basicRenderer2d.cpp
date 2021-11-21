@@ -2,13 +2,10 @@
 #include "../util/geometryUtil.hpp"
 #include <glm/ext/matrix_transform.hpp>
 #include "../components/components.h"
+#include "../util/resourceManager.h"
 
-BasicRenderer2D::BasicRenderer2D()
-:textureAtlas("atlas_test"),
-shader("experimental") {
-    textureAtlas.Print();
-
-    initQuad(quad, textureAtlas.SubRegion(0, 0)); 
+BasicRenderer2D::BasicRenderer2D() { 
+    initQuad(quad);
     glGenVertexArrays(1, &vao);
     glGenBuffers(1, &vbo);
     glGenBuffers(1, &ebo);
@@ -29,6 +26,7 @@ shader("experimental") {
 
     glGenBuffers(1, &textureVbo);
     glBindBuffer(GL_ARRAY_BUFFER, textureVbo);
+
     //tex coord attribe
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*) 0);
     glEnableVertexAttribArray(1);
@@ -43,6 +41,17 @@ BasicRenderer2D::~BasicRenderer2D() {
     quad.mIndices.clear();
 }
 
+void BasicRenderer2D::Init() {
+    textureAtlas = ResourceManager::GetTextureAtlas("spritesheet");
+    shader = ResourceManager::GetShader("test_shader");
+    if (shader == nullptr) {
+        LOG_ERROR("Shader nullptr");
+    }
+    if (textureAtlas == nullptr) {
+        LOG_ERROR("TextureAtlas nullptr");
+    }
+    textureAtlas->Print();
+}
 
 //TODO : Make Renderable work
 void BasicRenderer2D::Draw(std::vector<GameObject>& gameObjects) {
@@ -50,20 +59,33 @@ void BasicRenderer2D::Draw(std::vector<GameObject>& gameObjects) {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE):
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     
-    textureAtlas.Bind();
-    shader.Bind();
+    textureAtlas->Bind();
+    shader->Bind();
     glBindVertexArray(vao);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
   
     drawCalls = 0;
-    for (GameObject go : gameObjects) {
-        Transform& transform = go.GetComponent<Transform>();
-        Renderable& renderable = go.GetComponent<Renderable>(); //contains texture coordinates into the active texture atlas via @Region
+    for (int i = 0; i < gameObjects.size(); i++) {
+        GameObject& go = gameObjects[i];
 
+        //LOG_DEBUG("Draw gameobject #{}", drawCalls);
+        if (go.HasComponent<Identifier>()) {
+            //LOG_DEBUG("Has Transform");
+        }
+        Transform transform = go.GetComponent<Transform>();
+        Renderable renderable = go.GetComponent<Renderable>(); //contains texture coordinates into the active texture atlas via @Region
+    
+        //LOG_DEBUG("Transform {} {}", transform.position.x, transform.position.y);
+        //LOG_DEBUG("Obtained the components");
+        //LOG_DEBUG("Region empty {}", renderable.textureName);
         if (renderable.region.empty) {
-            renderable.region = textureAtlas.GetRegion(renderable.textureName);
+            //LOG_DEBUG("Region empty");
+            renderable.region = textureAtlas->GetRegion(renderable.textureName);
+            //LOG_DEBUG("{}", renderable.textureName);
             renderable.region.empty = false;
         }
+
+        //LOG_DEBUG("Initialized the region");
         //
         //  CALCULATE MODELMATRIX
         //
@@ -85,18 +107,22 @@ void BasicRenderer2D::Draw(std::vector<GameObject>& gameObjects) {
         //glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesSize, quad.mIndices.data(), GL_STATIC_DRAW);
         glBindBuffer(GL_ARRAY_BUFFER, textureVbo);
         glBufferData(GL_ARRAY_BUFFER, sizeof(texCoord[0]) * 4, &texCoord[0], GL_STATIC_DRAW);
+        //LOG_DEBUG("Set the texture coords");
 
         //
         //  DRAW VAO
         //
-        shader.Set4fv("model", model);
+        shader->Set4fv("model", model);
+        //LOG_DEBUG("Set the model matrix");
         glDrawElements(GL_TRIANGLES, quad.mIndices.size(), GL_UNSIGNED_INT, 0);
         drawCalls++;
     }
 }
 
 void BasicRenderer2D::Cleanup() {
-    textureAtlas.Unbind();
-    shader.Unbind();
-    textureAtlas.Unbind();
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+    textureAtlas->Unbind();
+    shader->Unbind();
 }

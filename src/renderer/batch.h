@@ -1,11 +1,11 @@
 #pragma once
 
+#include <vector>
+
 #include "../render_data/vertex.h"
 #include "../render_data/geometry.h"
 #include "../render_data/shader.h"
 #include "../render_data/textureAtlas.h"
-
-#include <vector>
 
 class Batch {
 public:

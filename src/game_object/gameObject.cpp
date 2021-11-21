@@ -6,7 +6,13 @@ GameObject::GameObject(entt::registry& reg)
 }
 
 GameObject::~GameObject() {
+    reg.destroy(entity);
+    LOG_WARN("Deleting gameobject");
+}
 
+GameObject::GameObject(GameObject&& other)
+:reg(other.reg) {
+    entity = other.entity;
 }
 
 //AddComponent declared / defined in header

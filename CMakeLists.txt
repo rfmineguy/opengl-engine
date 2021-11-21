@@ -4,10 +4,18 @@ project (opengl)
 find_package(glm REQUIRED)
 #find_package(freetype REQUIRED)
 
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -pthread")
 
 file(COPY res DESTINATION ${CMAKE_BINARY_DIR})
+
+
+add_compile_options(
+    #tells you if a redundant move operation occurred
+    -Wno-redundant-move
+    )
 
 set(SOURCES 
     src/main.cpp
@@ -23,7 +31,6 @@ set(SOURCES
     src/renderer/instancedRenderer.cpp
     src/renderer/basicRenderer2d.cpp
     src/renderer/orthoCamera.cpp
-    src/renderer/perspectiveCamera.cpp
     
     src/test/test.cpp
     src/test/testClearColor.cpp
@@ -50,14 +57,23 @@ FetchContent_Declare(
     )
 FetchContent_MakeAvailable(EnTT)
 
+#make spdlog not fetched as i need to edit it a little bit
+#FetchContent_Declare(
+#    spdlog
+#    GIT_REPOSITORY https://github.com/gabime/spdlog
+#)
+#FetchContent_MakeAvailable(spdlog)
+set(SPDLOG_BUILD_EXAMPLES OFF)
+
 add_subdirectory(vendor/glad)
 add_subdirectory(vendor/imgui)
 add_subdirectory(vendor/stb)
+add_subdirectory(vendor/spdlog)
 
 include_directories(opengl vendor vendor/glm/glm)
 
-add_executable(opengl ${SOURCES} )
+add_executable(opengl ${SOURCES})
 
-target_link_libraries(
-    opengl glad glfw imgui glm stb EnTT::EnTT
+target_link_libraries(opengl 
+    glad glfw imgui glm stb EnTT::EnTT spdlog::spdlog
 )

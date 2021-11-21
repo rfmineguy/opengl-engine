@@ -1,6 +1,7 @@
 #include "../render_data/geometry.h"
 #include "../render_data/shader.h"
 #include "../render_data/textureAtlas.h"
+#include "../game_object/gameObject.h"
 
 #define INSTANCE_COUNT 100
 
@@ -11,19 +12,23 @@ public:
     Shader& GetShader() {return shader;}
     //TextureAtlas& Atlas() {return textureAtlas;}
 
-    void SetGeometry(Geometry geometry);
-    void UploadModelMatrix(glm::mat4& matrix);
-    void Draw();
+    void Init();
+    void Draw(std::vector<GameObject>& gameobjects);
 
 
 private:
     bool geometrySet = false;
 
     Shader shader;
-    //TextureAtlas textureAtlas;
+    TextureAtlas textureAtlas;
+    Geometry geometry;
+
     unsigned int vao, vbo, ebo;
 
-    unsigned int buffer;
+    //  transformation buffer
+    unsigned int instanceMatVbo;
+    unsigned int texCoordVbo;
+
     int matrixCount = 0;
     std::vector<glm::mat4> modelMatrices;
 };

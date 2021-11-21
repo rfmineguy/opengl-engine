@@ -4,7 +4,6 @@ namespace test {
     TestMenu::TestMenu(Test*& currentTestPointer):
         mCurrentTest(currentTestPointer)
     {
-        std::cout << "Init" << std::endl; 
     }
 
     void TestMenu::ImGuiRender() {

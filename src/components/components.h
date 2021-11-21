@@ -44,7 +44,7 @@ struct Identifier {
  */
 struct Renderable {
     std::string textureName;
-    Region region;
+    Region region = {};
 };
 
 /* Animator component

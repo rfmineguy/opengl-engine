@@ -1,14 +1,27 @@
 #pragma once
-#include <glad/glad.h>
 #include <string>
 #include <iostream>
 #include <map>
-#include <glm/glm.hpp>
 #include <vector>
+
+#include <glad/glad.h>
+#include <glm/glm.hpp>
 
 class Shader {
 public:
+    Shader() = default;
     Shader(std::string tag);
+    
+    //delete copy ctor
+    Shader(const Shader&) = delete;
+    //delete copy assignment operator
+    Shader& operator=(Shader&) = delete;
+    
+    //move ctor
+    Shader(Shader&& other);
+    //move assignment operator
+    Shader& operator=(Shader&& other);
+
     ~Shader();
     void CleanAndChange(std::string tag, bool first = false);
     void Init();
@@ -31,7 +44,6 @@ private:
 
 //Member variables
 private:
-    std::string tag;
     std::string vertPath;
     std::string fragPath;
     std::string vertexSource;
@@ -39,7 +51,10 @@ private:
 
     unsigned int fragmentHandle;
     unsigned int vertexHandle;
-    unsigned int shaderProgramHandle;
 
     std::map<const char*, int> uniformCache;
+
+public:
+    unsigned int shaderProgramHandle;
+    std::string tag;
 };

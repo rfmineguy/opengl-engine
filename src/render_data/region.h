@@ -1,15 +1,13 @@
 #pragma once
 
-#include <glm/glm.hpp>
 #include <iostream>
+#include <glm/glm.hpp>
 
 struct Region {
+    glm::vec2 topright;
     glm::vec2 topleft;
     glm::vec2 bottomright;
+    glm::vec2 bottomleft;
     
-    void Print() {
-        printf("(%0.4f %0.4f) (%0.4f %0.4f)\n", 
-                topleft.x, topleft.y,
-                bottomright.x, bottomright.y);
-    }
+    bool empty = true;
 };

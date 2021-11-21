@@ -1,12 +1,14 @@
 #pragma once
 
-#include "../../vendor/imgui/imgui.h"
-
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
 #include <vector>
 #include <functional>
 #include <iostream>
+
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include "../../vendor/imgui/imgui.h"
+
+#include "../util/log.h"
 
 namespace test {
     class Test {
@@ -28,7 +30,6 @@ namespace test {
 
         template<typename T>
         void RegisterTest(const std::string& name) {
-            std::cout << "Registering test : " << name << std::endl;
             tests.push_back(std::make_pair(name, []() { return new T(); }));
         }
     private:

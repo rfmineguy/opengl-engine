@@ -15,6 +15,9 @@
 #include "windowData.h"
 #include "inputData.h"
 
+#include "../util/resourceManager.h"
+#include "../util/log.h"
+
 #define VERSION_MINOR 3
 #define VERSION_MAJOR 3
 
@@ -94,6 +97,7 @@ int Window::Create(const char* title, int width, int height) {
     InitWindow(title, width, height);
     InitGlad();
     InitImGui();
+    InitLogging();
     stbi_set_flip_vertically_on_load(1);
     WinData.windowWidth = width;
     WinData.windowHeight = height;
@@ -114,7 +118,7 @@ void Window::InitWindow(const char* title, int width, int height) {
     windowHeight = height;
     window = glfwCreateWindow(width, height, title, NULL, NULL);
     if (window == NULL) {
-        std::cerr << "Failed to create Window" << std::endl;
+        LOG_ERROR("Error creating window");
         glfwTerminate();
     }
     glfwMakeContextCurrent(window);
@@ -122,7 +126,7 @@ void Window::InitWindow(const char* title, int width, int height) {
 
 void Window::InitGlad() {
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-        std::cerr << "Failed to load Glad properly" << std::endl;
+        LOG_ERROR("Error loading glad");
     }
     glViewport(0, 0, windowWidth, windowHeight);
 
@@ -149,6 +153,9 @@ void Window::InitImGui() {
     ImGui_ImplOpenGL3_Init("#version 330");
 }
 
+void Window::InitLogging() {
+    Log::Init();
+}
 
 //      RUNTIME
 void Window::Update() {
@@ -164,7 +171,6 @@ void Window::Update() {
         
         bool currentTestDeleted = false;
         while (!glfwWindowShouldClose(window)) {
-
             Input.scrollXOffset = 0;
             Input.scrollYOffset = 0;
             WinData.frameTime = glfwGetTime();
@@ -183,8 +189,6 @@ void Window::Update() {
             glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
            
-            //currentTest.Resize(windowWidth, windowHeight);
-
             //render IMGUI
             ImGui_ImplOpenGL3_NewFrame();
             ImGui_ImplGlfw_NewFrame();
@@ -195,16 +199,18 @@ void Window::Update() {
                 ImGui::Begin("Test");
                 
                 if (currentTest != testMenu && ImGui::Button("<-")) {
-                    std::cout << "Deleting currentTest" << std::endl;
-                    delete currentTest;
-                    std::cout << "Deleted currentTest" << std::endl;
-                    currentTest = testMenu;
+                    if (currentTest != nullptr) {
+                        LOG_DEBUG("Deleting test");
+                        delete currentTest;     //crashes here, at delete
+                        LOG_DEBUG("Successfully deleted test");
+                        currentTest = testMenu;
+                    }
                 }
 
                 currentTest->ImGuiRender();
                 if (currentTest == testMenu && ImGui::Button("Exit")) {
                     glfwSetWindowShouldClose(window, true);
-                } 
+                }
                 
                 ImGui::End();
             }
@@ -214,17 +220,9 @@ void Window::Update() {
             ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         }
         
-        //program segfaults here sometimes for some reason
-        //  reason : 
-        //      - compiler automatically deletes stack allocated pointers
-        //        (i.e currentTest) and when I deleted it, it no longer existed
-        //        for the compiler to delete
-        if (!currentTestDeleted) {
-            //delete currentTest;
-        }
         if (testMenu) {
             delete testMenu;
-            std::cout << "Deleted testmenu" << std::endl;
+            LOG_INFO("Deleted testmenu");
         }
     }
 }
@@ -246,7 +244,8 @@ void Window::PollEvents(GLFWwindow* window, test::Test* test) {
 
 //      CLEANUP
 void Window::Cleanup() {
-    std::cout << "Cleaning up" << std::endl;
+    LOG_WARN("Cleaning up");
+    ResourceManager::Cleanup();
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();

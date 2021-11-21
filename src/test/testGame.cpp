@@ -1,44 +1,64 @@
 #include "testGame.h"
 #include "../components/components.h"
 #include "../window/inputData.h"
+#include "../util/resourceManager.h"
 
 namespace test {
     TestGame::TestGame() {
+        LOG_INFO("Begin TestGame");
+        ResourceManager::Init();
+        LOG_INFO("Begin Loading Resources");
+        ResourceManager::LoadShader("test_shader", "experimental");
+        ResourceManager::LoadTexture("test", "test.png");
+        ResourceManager::LoadTextureAtlas("spritesheet", "testing");
+        LOG_INFO("End Loading Resources");
+        ResourceManager::PrintContents();
+
+        renderer.Init();
+
         int width=10,height=10;
-        for (int i = 0; i < 3; i++) {
+
+        GameObject& object = objects.emplace_back(reg);
+        object.AddComponent<Transform>(80, 84, 120, 120, 0);
+        object.AddComponent<Identifier>("0");
+        object.AddComponent<Renderable>("bigx");
+
+        //TODO: Figure out this scope issue. 'object' is deleted after the scope ends
+        /*
+        for (int i = 1; i < 4; i++) {
             int x = i % width;
             int y = i / width;
-            GameObject object(reg);
-            object.AddComponent<Transform>(x * 64, y * 64, 120, 120, 0);
-            object.AddComponent<Identifier>(std::to_string(i));
-            if (i % 2 == 0) {
-                object.AddComponent<Renderable>("bigx");   //use the checkmark texture from the atlas
-            }
-            else {
-                object.AddComponent<Renderable>("hi");
-            }
-            objects.push_back(object);
-
-        }
+            GameObject* object = &objects.emplace_back(reg);
+            object->AddComponent<Transform>(x * 80, y * 84, 120, 120, 0);
+            object->AddComponent<Identifier>(std::to_string(i));
+            if (i % 2 == 0) 
+                object->AddComponent<Renderable>("bigx");   //use the checkmark texture from the atlas
+            else
+                object->AddComponent<Renderable>("hi");
+            
+            LOG_INFO("ID : {}", object->GetComponent<Identifier>().id);
+            LOG_INFO("TEXTURE : {}", object->GetComponent<Renderable>().textureName);
+        }*/
     }
 
     TestGame::~TestGame() {
-        objects.clear();
         renderer.Cleanup();
+        objects.clear();
+        
         std::cout << "TestGame Destructor" << std::endl;
+        LOG_WARN("Entt registry size {} capacity {}", reg.size(), reg.capacity());
         //NOTE entt registry automatically cleaned
     }
 
-
      void TestGame::Update(float dt) {
+        //LOG_DEBUG("Update");
         camera.Movement();
-        renderer.GetShader().Bind();
-        renderer.GetShader().Set4fv("view", camera.GetView());
-        renderer.GetShader().Set4fv("projection", camera.GetProj());
-        
-        //TODO : Map mouseX and mouseY to world space somehow. The xpos and ypos drift if you move
-        //  the camera too far
+        renderer.GetShader()->Bind();
+        renderer.GetShader()->Set4fv("view", camera.GetView());
+        renderer.GetShader()->Set4fv("projection", camera.GetProj());
        
+        //LOG_DEBUG("End Shader Modification");
+
         if (objects[0].HasComponent<Transform>()) {
             glm::vec2 world = camera.ScreenToWorld(Input.mouse);
             objects[0].GetComponent<Transform>().position = glm::vec3(world.x, world.y, 0);
@@ -49,10 +69,13 @@ namespace test {
                 objects[0].GetComponent<Transform>().rotation--;
             }
         }
+        //LOG_DEBUG("End Update");
     }
 
     void TestGame::Render() {
+        //LOG_DEBUG("Render");
         renderer.Draw(objects);
+        //LOG_DEBUG("End Render");
     }
 
     void TestGame::Resize(int width, int height) {

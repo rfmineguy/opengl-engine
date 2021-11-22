@@ -68,24 +68,14 @@ void BasicRenderer2D::Draw(std::vector<GameObject>& gameObjects) {
     for (int i = 0; i < gameObjects.size(); i++) {
         GameObject& go = gameObjects[i];
 
-        //LOG_DEBUG("Draw gameobject #{}", drawCalls);
-        if (go.HasComponent<Identifier>()) {
-            //LOG_DEBUG("Has Transform");
-        }
         Transform transform = go.GetComponent<Transform>();
         Renderable renderable = go.GetComponent<Renderable>(); //contains texture coordinates into the active texture atlas via @Region
     
-        //LOG_DEBUG("Transform {} {}", transform.position.x, transform.position.y);
-        //LOG_DEBUG("Obtained the components");
-        //LOG_DEBUG("Region empty {}", renderable.textureName);
         if (renderable.region.empty) {
-            //LOG_DEBUG("Region empty");
             renderable.region = textureAtlas->GetRegion(renderable.textureName);
-            //LOG_DEBUG("{}", renderable.textureName);
             renderable.region.empty = false;
         }
 
-        //LOG_DEBUG("Initialized the region");
         //
         //  CALCULATE MODELMATRIX
         //

@@ -9,36 +9,26 @@ namespace test {
         ResourceManager::Init();
         LOG_INFO("Begin Loading Resources");
         ResourceManager::LoadShader("test_shader", "experimental");
-        ResourceManager::LoadTexture("test", "test.png");
         ResourceManager::LoadTextureAtlas("spritesheet", "testing");
         LOG_INFO("End Loading Resources");
         ResourceManager::PrintContents();
 
         renderer.Init();
 
-        int width=10,height=10;
+        objects.reserve(2);
 
         GameObject& object = objects.emplace_back(reg);
         object.AddComponent<Transform>(80, 84, 120, 120, 0);
         object.AddComponent<Identifier>("0");
         object.AddComponent<Renderable>("bigx");
+       
+        GameObject& object2 = objects.emplace_back(reg);
+        object2.AddComponent<Transform>(20, 20, 55, 55, 0);
+        object2.AddComponent<Identifier>("1");
+        object2.AddComponent<Renderable>("check");
 
-        //TODO: Figure out this scope issue. 'object' is deleted after the scope ends
-        /*
-        for (int i = 1; i < 4; i++) {
-            int x = i % width;
-            int y = i / width;
-            GameObject* object = &objects.emplace_back(reg);
-            object->AddComponent<Transform>(x * 80, y * 84, 120, 120, 0);
-            object->AddComponent<Identifier>(std::to_string(i));
-            if (i % 2 == 0) 
-                object->AddComponent<Renderable>("bigx");   //use the checkmark texture from the atlas
-            else
-                object->AddComponent<Renderable>("hi");
-            
-            LOG_INFO("ID : {}", object->GetComponent<Identifier>().id);
-            LOG_INFO("TEXTURE : {}", object->GetComponent<Renderable>().textureName);
-        }*/
+        LOG_DEBUG("{}", reg.size());
+        LOG_DEBUG("{}", objects.size());
     }
 
     TestGame::~TestGame() {

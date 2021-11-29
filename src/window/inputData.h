@@ -8,6 +8,7 @@ struct InputData {
     int lastMouseX, lastMouseY;
     int mouseOffsetX, mouseOffsetY;
     bool mouseCaptured = false;
+    bool mouseDown = false;
 
     double scrollXOffset, scrollYOffset;
 };

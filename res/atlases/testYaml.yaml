@@ -1,0 +1,14 @@
+desc: ["32", "32", testing.png] 
+entries:
+  - name: bigx
+    row: 0
+    col: 0
+  - name: check
+    row: 1
+    col: 0
+  - name: player
+    row: 2
+    col: 0
+  - name: hi
+    row: 1
+    col: 2

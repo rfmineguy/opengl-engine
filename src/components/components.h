@@ -1,6 +1,6 @@
 #pragma once
+#include "../corepch.h"
 #include <glm/gtc/matrix_transform.hpp>
-#include <string>
 #include "../render_data/region.h"
 #include "../render_data/textureAtlas.h"
 
@@ -39,11 +39,17 @@ struct Identifier {
     std::string id;
 };
 
+struct SpriteRenderer {
+    std::string name;
+    Region region;
+};
+
 /* Renderable
  *   gives the ability to render a GameObject with a texture
  */
 struct Renderable {
-    std::string textureName;
+    std::string resourceId;     //id of the loaded resource
+    std::string atlasSubRegionName; //name of the subregion in the atlas
     Region region = {};
 };
 
@@ -51,11 +57,38 @@ struct Renderable {
  *   a controller for the sprite renderer (dependent on it)
  *   the sprite renderer must have a spritesheet
  */
-struct AnimatedRenderable {
-    TextureAtlas textureAtlas;
-
+struct AnimatedRenderable : Renderable {
+    int timer;
     int delay;
-    int currentFrame;
-    int nextFrame;
+    int currentFrameId, lastFrameId;
     bool looping;
+    
+    //return id of the current frame
+    int animate() {
+        timer ++;
+        if (timer > delay) {
+            currentFrameId++;
+        }
+        if (currentFrameId > lastFrameId) {
+            currentFrameId = 0;
+        }
+        return currentFrameId;
+    }
+};
+
+struct Behavior {
+    std::string connectObjectName; //used to get information from the Registry
+    virtual void update(float dt) = 0;
+};
+
+struct PlayerBehavior: public Behavior {
+    bool isRunning = false;
+    bool isHandEmpty = true;
+
+    void update(float dt) override {
+        LOG_INFO("Updating playerLogic");
+        if (isRunning) {
+            //move twice as fast
+        }
+    }
 };

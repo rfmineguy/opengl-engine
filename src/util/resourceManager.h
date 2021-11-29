@@ -1,16 +1,10 @@
 #pragma once
 
-#include <map>
-#include <memory>
-#include <string>
-#include <iomanip>
+#include "../corepch.h"
 #include "../render_data/texture.h"
 #include "../render_data/textureAtlas.h"
 #include "../render_data/shader.h"
-#include "../util/log.h"
 
-//TODO:: I think the issue is that I am deleting the handles for my textures and shaders during the 
-//move ctor somehow
 //SINGLETON CLASS
 class ResourceManager {
 public:
@@ -124,22 +118,19 @@ private:
     }
     void InitImpl() {
         LOG_DEBUG("Initializing resource manager");
-        //uTextures.clear();
-        //uTextureAtlases.clear();
-        //uShaders.clear();
     }
     void CleanupImpl(){ 
         LOG_DEBUG("Cleaning up loaded resources");
-        //uTextures.clear();
-        //uTextureAtlases.clear();
-        //uShaders.clear();
     }
 private:
     std::unordered_map<std::string, std::unique_ptr<Texture>> uTextures;    //https://duckduckgo.com/
     std::unordered_map<std::string, std::unique_ptr<TextureAtlas>> uTextureAtlases;
     std::unordered_map<std::string, std::unique_ptr<Shader>> uShaders;
+
+
+friend class ImGuiLayer;
 };
-  
+ 
 // (id, filename)
 //ResourceManager::LoadTextureAtlas("spritesheet","atlas_test")
 //ResourceManager::GetTexture("player");

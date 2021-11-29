@@ -54,6 +54,7 @@ void BasicRenderer2D::Init() {
 }
 
 //TODO : Make Renderable work
+/*
 void BasicRenderer2D::Draw(std::vector<GameObject>& gameObjects) {
     drawWireframe ?
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE):
@@ -70,9 +71,9 @@ void BasicRenderer2D::Draw(std::vector<GameObject>& gameObjects) {
 
         Transform transform = go.GetComponent<Transform>();
         Renderable renderable = go.GetComponent<Renderable>(); //contains texture coordinates into the active texture atlas via @Region
-    
+
         if (renderable.region.empty) {
-            renderable.region = textureAtlas->GetRegion(renderable.textureName);
+            renderable.region = textureAtlas->GetRegion(renderable.resourceId);
             renderable.region.empty = false;
         }
 
@@ -108,6 +109,7 @@ void BasicRenderer2D::Draw(std::vector<GameObject>& gameObjects) {
         drawCalls++;
     }
 }
+*/
 
 void BasicRenderer2D::Cleanup() {
     glBindBuffer(GL_ARRAY_BUFFER, 0);

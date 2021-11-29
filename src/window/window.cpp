@@ -6,12 +6,6 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 
-#include "../test/test.h"
-#include "../test/testClearColor.h"
-#include "../test/testTriangle.h"
-#include "../test/testShaderDev.h"
-#include "../test/testGame.h"
-
 #include "windowData.h"
 #include "inputData.h"
 
@@ -58,7 +52,7 @@ void mouseMoveCallback(GLFWwindow* window, double xpos, double ypos) {
         if (xpos < WinData.windowWidth && xpos > 0)
             Input.mouse.x = xpos;
         if (ypos < WinData.windowHeight && ypos > 0)
-            Input.mouse.y = ypos;
+            Input.mouse.y = WinData.windowHeight - ypos;
         
         Input.mouseOffsetX = Input.mouse.x - Input.lastMouseX;
         Input.mouseOffsetY = Input.mouse.y - Input.lastMouseY;
@@ -160,15 +154,8 @@ void Window::InitLogging() {
 //      RUNTIME
 void Window::Update() {
     {
-        test::Test* currentTest = nullptr;
-        test::TestMenu* testMenu = new test::TestMenu(currentTest);
-        currentTest = testMenu;
+        engine = new Engine();
 
-        testMenu->RegisterTest<test::TestClearColor>("Clear Color");
-        testMenu->RegisterTest<test::TestTriangle>("Test Triangle");
-        testMenu->RegisterTest<test::TestShaderDev>("Test Shader Dev");
-        testMenu->RegisterTest<test::TestGame>("Test Game");
-        
         bool currentTestDeleted = false;
         while (!glfwWindowShouldClose(window)) {
             Input.scrollXOffset = 0;
@@ -178,11 +165,11 @@ void Window::Update() {
             WinData.spf = deltaTime;
             WinData.lastFrameTime = lastFrame;
             //poll events
-            PollEvents(window, currentTest);
+            PollEvents(window);
             glfwSwapBuffers(window);
 
             if (WinData.resized) {
-                currentTest->Resize(WinData.windowWidth, WinData.windowHeight);
+                engine->Resize(WinData.windowWidth, WinData.windowHeight);
                 WinData.resized = false;
             }
             //clear screen
@@ -193,36 +180,18 @@ void Window::Update() {
             ImGui_ImplOpenGL3_NewFrame();
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
-            if (currentTest) {
-                currentTest->Update(WinData.deltaTime);
-                currentTest->Render();
-                ImGui::Begin("Test");
-                
-                if (currentTest != testMenu && ImGui::Button("<-")) {
-                    if (currentTest != nullptr) {
-                        LOG_DEBUG("Deleting test");
-                        delete currentTest;     //crashes here, at delete
-                        LOG_DEBUG("Successfully deleted test");
-                        currentTest = testMenu;
-                    }
-                }
-
-                currentTest->ImGuiRender();
-                if (currentTest == testMenu && ImGui::Button("Exit")) {
-                    glfwSetWindowShouldClose(window, true);
-                }
-                
-                ImGui::End();
-            }
+            engine->Update(WinData.deltaTime);
+            engine->Draw();
+            
             RenderImGui();
 
             ImGui::Render();
             ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         }
         
-        if (testMenu) {
-            delete testMenu;
-            LOG_INFO("Deleted testmenu");
+        if (engine) {
+            delete engine;
+            LOG_INFO("Deleted engine");
         }
     }
 }
@@ -235,7 +204,7 @@ void Window::Render() {
 void Window::RenderImGui() {
 }
 
-void Window::PollEvents(GLFWwindow* window, test::Test* test) {
+void Window::PollEvents(GLFWwindow* window) {
     glfwPollEvents();
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);

@@ -1,8 +1,5 @@
 #pragma once
-#include <string>
-#include <iostream>
-#include <map>
-#include <vector>
+#include "../corepch.h"
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>

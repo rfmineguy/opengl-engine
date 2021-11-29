@@ -5,7 +5,7 @@
 #include "../render_data/shader.h"
 #include "../render_data/textureAtlas.h"
 #include "orthoCamera.h"
-#include "../game_object/gameObject.h"
+#include "../registry.h"
 
 #include "entt/entt.hpp"
 
@@ -15,7 +15,7 @@ public:
     ~BasicRenderer2D();
 
     void Init();
-    void Draw(std::vector<GameObject>& gameObjects);
+    //void Draw(std::vector<GameObject>& gameObjects);
     Shader* GetShader() { return shader; }
     void Cleanup();
 public:

@@ -10,7 +10,7 @@
 
 int main() {
     Window window;
-    window.Create("OpenGL Window", 600, 600);
+    window.Create("OpenGL Window", 1920, 1080);
     window.Update();
     LOG_INFO("Left update");
     window.Cleanup();

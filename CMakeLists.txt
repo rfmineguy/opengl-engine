@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project (opengl)
+project (opengl LANGUAGES CXX C)
 
 find_package(glm REQUIRED)
 #find_package(freetype REQUIRED)
@@ -17,9 +17,14 @@ add_compile_options(
     -Wno-redundant-move
     )
 
+set(HEADER_FILES
+    src/corepch.h
+    )
+
 set(SOURCES 
     src/main.cpp
-    
+   
+
     src/window/window.cpp
 
     src/render_data/shader.cpp
@@ -28,19 +33,15 @@ set(SOURCES
     src/render_data/textureAtlas.cpp
     
     src/renderer/batch.cpp
-    src/renderer/instancedRenderer.cpp
     src/renderer/basicRenderer2d.cpp
     src/renderer/orthoCamera.cpp
-    
-    src/test/test.cpp
-    src/test/testClearColor.cpp
-    src/test/testTriangle.cpp
-    src/test/testShaderDev.cpp
-    src/test/testGame.cpp
-    
-    src/game_object/gameObject.cpp
+    src/renderer/framebuffer.cpp
 
-    vendor/glad/glad.c
+    src/engine/imguilayer.h
+    
+    src/engine/engine.cpp
+    
+    #vendor/glad/glad.c
     )
 
 include (FetchContent)
@@ -57,23 +58,25 @@ FetchContent_Declare(
     )
 FetchContent_MakeAvailable(EnTT)
 
-#make spdlog not fetched as i need to edit it a little bit
-#FetchContent_Declare(
-#    spdlog
-#    GIT_REPOSITORY https://github.com/gabime/spdlog
-#)
-#FetchContent_MakeAvailable(spdlog)
 set(SPDLOG_BUILD_EXAMPLES OFF)
 
-add_subdirectory(vendor/glad)
 add_subdirectory(vendor/imgui)
 add_subdirectory(vendor/stb)
 add_subdirectory(vendor/spdlog)
+add_subdirectory(vendor/glad)
 
 include_directories(opengl vendor vendor/glm/glm)
 
 add_executable(opengl ${SOURCES})
 
+target_precompile_headers(opengl PUBLIC src/corepch.h)
+
 target_link_libraries(opengl 
-    glad glfw imgui glm stb EnTT::EnTT spdlog::spdlog
+    glfw 
+    imgui 
+    glm 
+    stb 
+    #glad 
+    EnTT::EnTT 
+    spdlog::spdlog
 )

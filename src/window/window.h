@@ -2,7 +2,7 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include "../test/test.h"
+#include "../engine/engine.h"
 
 class Window {
 public:
@@ -10,10 +10,9 @@ public:
     ~Window();
     int Create(const char* title, int width, int height);
     void Update();
-    void UpdateTest(test::Test* currentTest, test::TestMenu*&, bool);
     void Render();
     void RenderImGui();
-    void PollEvents(GLFWwindow*, test::Test*);
+    void PollEvents(GLFWwindow*);
     void Cleanup();
 
 //Initialization functions
@@ -31,4 +30,6 @@ private:
     GLFWwindow* window;
     int windowWidth, windowHeight;
     int lastWindowWidth, lastWindowHeight;
+
+    Engine* engine;
 };

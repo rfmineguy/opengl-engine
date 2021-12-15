@@ -7,10 +7,10 @@
 
 //cool debugger added to neovim
 // f9 -> breakpoint
-
+using namespace Firefly;
 int main() {
     Window window;
-    window.Create("OpenGL Window", 1920, 1080);
+    window.Create("Firefly Engine", 1920, 1080);
     window.Update();
     LOG_INFO("Left update");
     window.Cleanup();

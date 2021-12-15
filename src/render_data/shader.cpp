@@ -4,9 +4,12 @@
 #include "../util/fileUtil.h"
 #include "../util/log.h"
 
-Shader::Shader(std::string tag)
+namespace Firefly {
+Shader::Shader(const std::string& tag, const std::string& path)
     :tag(tag)
 {
+    this->tag = tag;
+    this->path = path;
     CleanAndChange(tag, true);
 }
 
@@ -75,8 +78,8 @@ void Shader::CleanAndChange(std::string _tag, bool first) {
     glDeleteProgram(shaderProgramHandle);
 
     //create new shader program with the new shader source
-    vertPath = "res/shader/" + _tag + "/vert.glsl";
-    fragPath = "res/shader/" + _tag + "/frag.glsl";
+    vertPath = path + "vert.glsl";
+    fragPath = path + "frag.glsl";
     Init();
 }
 
@@ -178,9 +181,10 @@ int Shader::GetLocation(const char* name) {
     }
     int location = glGetUniformLocation(shaderProgramHandle, name);
     if (location == -1) {
-        LOG_ERROR("Requested uniform {0} not found in {1}", name, tag);
+        //LOG_ERROR("Requested uniform {0} not found in {1}", name, tag);
         return -1;
     }
     uniformCache.emplace(name, location);
     return uniformCache.at(name); 
+}
 }

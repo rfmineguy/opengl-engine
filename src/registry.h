@@ -9,6 +9,7 @@
 #include "components/components.h"
 #include "imgui.h"
 
+namespace Firefly {
 class GameObject {
 public:
     GameObject(entt::registry &reg) {
@@ -33,7 +34,6 @@ public:
             LOG_WARN("Object already exists, returning existing object.");
         } else {
             Get().entities.emplace(name, std::make_unique<GameObject>(Get().reg));
-            LOG_DEBUG("Registerd GameObject - {}", name);
         }
         return GetRegisteredGameObject(name);
     }
@@ -62,13 +62,11 @@ public:
     template <typename T, typename ...Args>
     static void AddComponent(const GameObject& object, Args&&... args) {
         Get().reg.emplace<T>(object.entityHandle, std::forward<Args>(args)...);
-        LOG_DEBUG("Added Component");
     }
 
     template <typename T, typename ...Args>
     static void AddComponent(const std::string& name, Args&&... args) {
         Get().reg.emplace<T>(Get().entities.at(name)->entityHandle, std::forward<Args>(args)...);
-        LOG_DEBUG("Added Component");
     }
 
     //
@@ -95,22 +93,6 @@ public:
     template <typename T>
     static bool HasComponent(const std::string& name) {
         return Get().reg.try_get<T>(Get().entities.at(name)->entityHandle);
-    }
-
-    //
-    //BehaviorComponent
-    //T must be inherited from Behavior
-    //
-    template <typename T>
-    static void AddBehavior(const GameObject& object) {
-        static_assert(std::is_base_of<Behavior, T>::value, "Not derived from Behavior");
-        AddComponent<T>(object, GetComponent<Identifier>(object).id);
-    }
-
-    template <typename T>
-    static void AddBehavior(const std::string& name) {
-        static_assert(std::is_base_of<Behavior, T>::value, "Not derived from Behavior");
-        AddComponent<T>(name, GetComponent<Identifier>(name).id);
     }
 
     //
@@ -160,6 +142,8 @@ private:
     std::map<std::string, std::unique_ptr<GameObject>> entities;
 
     friend class Renderer2D;
+    friend class ImGuiRegistryPanel;
     friend class ImGuiLayer;
 };
+}
 

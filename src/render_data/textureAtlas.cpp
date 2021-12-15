@@ -8,9 +8,14 @@
 #include <type_traits>
 #include "../util/log.h"
 
-TextureAtlas::TextureAtlas(std::string atlasName) : Texture(),
-atlasName(atlasName){
-    ParseAtlas(); 
+
+namespace Firefly {
+TextureAtlas::TextureAtlas(const std::string& tag, const std::string& path) : Texture(),
+atlasName(tag){
+    this->tag = tag;
+    this->path = path;
+    LOG_DEBUG("TextureAtlas {} - {}", this->tag.c_str(), this->path.c_str());
+    ParseAtlas();
 }
 
 TextureAtlas::~TextureAtlas() {
@@ -27,6 +32,7 @@ TextureAtlas::TextureAtlas(TextureAtlas&& other) {
     subTexHeight = other.subTexHeight;
     cellsWide = other.cellsWide;
     cellsTall = other.cellsTall;
+    path = std::move(other.path);
 
     //deinitialize other
     other.atlasName = "";
@@ -35,6 +41,7 @@ TextureAtlas::TextureAtlas(TextureAtlas&& other) {
     other.subTexHeight = 0;
     other.cellsWide = 0;
     other.cellsTall = 0;
+    other.path = "";
 }
 
 TextureAtlas& TextureAtlas::operator = (TextureAtlas&& other) {
@@ -46,6 +53,7 @@ TextureAtlas& TextureAtlas::operator = (TextureAtlas&& other) {
     subTexHeight = other.subTexHeight;
     cellsWide = other.cellsWide;
     cellsTall = other.cellsTall;
+    path = std::move(other.path);
 
     //deinitialize other
     other.atlasName = nullptr;
@@ -54,6 +62,7 @@ TextureAtlas& TextureAtlas::operator = (TextureAtlas&& other) {
     other.subTexHeight = 0;
     other.cellsWide = 0;
     other.cellsTall = 0;
+    other.path = "";
 
     return *this;
 }
@@ -70,10 +79,9 @@ void TextureAtlas::ParseAtlas() {
     cellsTall = 4;
 
     int currentLine = 0;
-    std::string searchPath = "res/atlases/" + atlasName + ".atlas";
-    std::ifstream ifs(searchPath);
+    std::ifstream ifs(this->path);
     if (ifs.fail()) {
-        LOG_ERROR("Failed to open file {0}", searchPath);
+        LOG_ERROR("Failed to open file {0}", this->path);
     }
     else {
         std::string s;
@@ -166,4 +174,5 @@ void TextureAtlas::Print() {
                 pair.second.topleft.x, pair.second.topleft.y,
                 pair.second.bottomright.x, pair.second.bottomright.y);
     }
+}
 }

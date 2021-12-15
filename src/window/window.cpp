@@ -18,9 +18,8 @@
 WindowData WinData;
 InputData Input;
 
+namespace Firefly {
 void framebuffersizeCallback(GLFWwindow* window, int w, int h) {
-    glViewport(0, 0, w, h);
-
     WinData.windowWidth = w;
     WinData.windowHeight = h;
     WinData.resized = true;
@@ -37,15 +36,16 @@ void keyboardCallback(GLFWwindow* window, int key, int scancode, int action, int
     if (Input.keys[GLFW_KEY_SPACE] && action != GLFW_REPEAT) {
         Input.mouseCaptured = !Input.mouseCaptured;
         if (Input.mouseCaptured) {
-            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         } else {
-            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
         }
     }
 }
 
 void mouseMoveCallback(GLFWwindow* window, double xpos, double ypos) {
-    if (/*Input.mouseCaptured &&*/ glfwGetWindowAttrib(window, GLFW_HOVERED)) {
+    /*
+    if (Input.mouseCaptured && glfwGetWindowAttrib(window, GLFW_HOVERED)) {
         Input.lastMouseX = Input.mouse.x;
         Input.lastMouseY = Input.mouse.y;
         
@@ -59,7 +59,7 @@ void mouseMoveCallback(GLFWwindow* window, double xpos, double ypos) {
     } else {
         Input.mouseOffsetX = 0.f;
         Input.mouseOffsetY = 0.f;
-    }
+    }*/
 }
 
 //xoffset is for trackpads
@@ -141,8 +141,6 @@ void Window::InitImGui() {
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
 
-    ImGui::StyleColorsDark();
-
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330");
 }
@@ -220,4 +218,5 @@ void Window::Cleanup() {
     ImGui::DestroyContext();
     glfwDestroyWindow(window);
     glfwTerminate();
+}
 }

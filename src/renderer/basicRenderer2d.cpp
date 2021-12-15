@@ -4,6 +4,7 @@
 #include "../components/components.h"
 #include "../util/resourceManager.h"
 
+namespace Firefly {
 BasicRenderer2D::BasicRenderer2D() { 
     initQuad(quad);
     glGenVertexArrays(1, &vao);
@@ -42,8 +43,8 @@ BasicRenderer2D::~BasicRenderer2D() {
 }
 
 void BasicRenderer2D::Init() {
-    textureAtlas = ResourceManager::GetTextureAtlas("spritesheet");
-    shader = ResourceManager::GetShader("test_shader");
+    textureAtlas = ResourceManager::GetProjectResource<TextureAtlas>("spritesheet");
+    shader = ResourceManager::GetProjectResource<Shader>("test_shader");
     if (shader == nullptr) {
         LOG_ERROR("Shader nullptr");
     }
@@ -117,4 +118,5 @@ void BasicRenderer2D::Cleanup() {
     glBindVertexArray(0);
     textureAtlas->Unbind();
     shader->Unbind();
+}
 }

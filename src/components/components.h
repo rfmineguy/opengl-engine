@@ -32,16 +32,16 @@ struct Transform {
     }
 };
 
+struct Camera {
+    
+};
+
 /* Identifier component
- *   meant as a way to retrieve an entity by a unique id
+ *  gives a gameobject a display name basically 
  */
 struct Identifier {
     std::string id;
-};
-
-struct SpriteRenderer {
-    std::string name;
-    Region region;
+    std::string displayName;
 };
 
 /* Renderable
@@ -76,19 +76,6 @@ struct AnimatedRenderable : Renderable {
     }
 };
 
-struct Behavior {
-    std::string connectObjectName; //used to get information from the Registry
-    virtual void update(float dt) = 0;
-};
-
-struct PlayerBehavior: public Behavior {
-    bool isRunning = false;
-    bool isHandEmpty = true;
-
-    void update(float dt) override {
-        LOG_INFO("Updating playerLogic");
-        if (isRunning) {
-            //move twice as fast
-        }
-    }
+struct Script {
+    std::string luaScriptPath;
 };

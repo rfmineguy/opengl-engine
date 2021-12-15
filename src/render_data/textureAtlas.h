@@ -3,10 +3,11 @@
 #include "region.h"
 #include <map>
 
+namespace Firefly {
 class TextureAtlas : public Texture {
 public:
     TextureAtlas() = default;
-    TextureAtlas(std::string atlasName);
+    TextureAtlas(const std::string& tag, const std::string& path);
     
     //delete copy ctor
     TextureAtlas(const TextureAtlas&) = delete;
@@ -36,3 +37,4 @@ private:
     int subTexWidth, subTexHeight;
     int cellsWide, cellsTall;         //how many cells across and top to bottom
 };
+}

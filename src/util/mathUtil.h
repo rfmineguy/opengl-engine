@@ -2,6 +2,7 @@
 #include <random>
 #include <typeinfo>
 
+namespace Firefly {
 class Random {
 public:
     static int RandIntRange(int lower, int upper) {
@@ -21,4 +22,5 @@ public:
 
 inline float map(float value, float istart, float istop, float ostart, float ostop) {
     return ostart + (ostop - ostart) * ((value - istart) / (istop - istart));
+}
 }

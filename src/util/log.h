@@ -30,6 +30,7 @@
 
 #endif
 
+namespace Firefly {
 class Log {
 public:
     static Log& Get() {
@@ -65,4 +66,4 @@ public:
 private:
     std::shared_ptr<spdlog::logger> s_CoreLogger;
 };
-
+}

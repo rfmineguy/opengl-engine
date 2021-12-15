@@ -2,13 +2,13 @@
 #include <iostream>
 #include "../util/log.h"
 
-Texture::Texture() {
-
-}
-Texture::Texture(std::string tag)
-    :tag(tag)
+namespace Firefly {
+Texture::Texture(const std::string& tag, const std::string& path)
 {
-    CleanAndChange(tag);
+    this->path = path;
+    //CleanAndChange(tag, false);
+    Load(path.c_str());
+    this->tag = tag;
 }
 
 Texture::Texture(Texture&& other) {
@@ -29,7 +29,7 @@ Texture::Texture(Texture&& other) {
     other.tag = "";
     other.path = "";
     other.data = nullptr;
-    CleanAndChange(tag);
+    CleanAndChange(tag, false);
 }
 
 Texture& Texture::operator=(Texture&& other) {
@@ -50,7 +50,7 @@ Texture& Texture::operator=(Texture&& other) {
     other.tag = "";
     other.path = "";
     other.data = nullptr;
-    CleanAndChange(tag);
+    CleanAndChange(tag, false);
     return *this;
 }
 
@@ -125,4 +125,5 @@ void Texture::Bind(int offset) {
 
 void Texture::Unbind() {
     glBindTexture(GL_TEXTURE_2D, 0);
+}
 }

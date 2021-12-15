@@ -10,6 +10,7 @@
 #include "../renderer/framebuffer.h"
 
 //Renderer2D is a friend class of Registry
+namespace Firefly {
 class Renderer2D {
 public:
     static Renderer2D& Get() {
@@ -66,7 +67,7 @@ private:
             Renderable& r = Registry::GetComponent<Renderable>(object);
 
             Get().textureAtlas->Unbind();
-            Get().textureAtlas = ResourceManager::GetTextureAtlas(r.resourceId);
+            Get().textureAtlas = ResourceManager::GetProjectResource<TextureAtlas>(r.resourceId);
             Get().textureAtlas->Bind();
 
             if (r.region.empty) {
@@ -107,6 +108,7 @@ private:
 
     }
     void DrawRegistryImpl(OrthoCamera& camera) {
+        //LOG_DEBUG("Bind framebuffer");
         frameBuffer.Bind();
         glClearColor(0.6f, 0.6f, 0.6f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
@@ -114,14 +116,15 @@ private:
             Draw(*entry.second, camera);
         }
         frameBuffer.Unbind();
+        //LOG_DEBUG("Unbind framebuffer");
     }
 
     void InitImpl() {
         LOG_DEBUG("InitImpl");
         if (!isInitialized) {
             LOG_DEBUG("Initializing 2D Renderer");
-            textureAtlas = ResourceManager::GetTextureAtlas("spritesheet");
-            shader = ResourceManager::GetShader("test_shader");
+            textureAtlas = ResourceManager::GetProjectResource<TextureAtlas>("spritesheet");
+            shader = ResourceManager::GetProjectResource<Shader>("test_shader");
 
             initQuad(quad);
             glGenVertexArrays(1, &vao);
@@ -154,29 +157,8 @@ private:
             
             //FRAMEBUFFER
             frameBuffer.Resize(1280, 720);
-            /*
-            {
-                LOG_DEBUG("Creating framebuffer");
-                //Framebuffer
-                glGenFramebuffers(1, &fbo);
-                glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-                LOG_DEBUG("Bound framebuffer");
 
-                glGenTextures(1, &texColorBuffer);
-                glBindTexture(GL_TEXTURE_2D, texColorBuffer);
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 1280, 720, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texColorBuffer, 0);
-                LOG_DEBUG("Created texColorBuffer");
-
-                if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-	                LOG_ERROR("FrameBuffer is not complete!");
-                glBindFramebuffer(GL_FRAMEBUFFER, 0);
-            }
-            */
-
-            LOG_INFO("Initialized 2D Renderer");
+            LOG_DEBUG("Initialized 2D Renderer");
             isInitialized = true;
         }
         else {
@@ -217,3 +199,4 @@ private:
 public:
     FrameBuffer frameBuffer;
 };
+}

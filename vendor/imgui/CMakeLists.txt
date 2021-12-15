@@ -4,6 +4,10 @@ add_library(imgui
     imconfig.h
     imgui.cpp
     imgui.h
+
+    imgui_stdlib.cpp
+    imgui_stdlib.h
+
     imgui_demo.cpp
     imgui_draw.cpp
     imgui_impl_glfw.cpp

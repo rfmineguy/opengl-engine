@@ -8,6 +8,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+namespace Firefly {
 class Engine {
 public:
     Engine();
@@ -20,3 +21,5 @@ public:
 private:
     OrthoCamera camera;
 };
+}
+

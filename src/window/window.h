@@ -4,6 +4,7 @@
 #include <GLFW/glfw3.h>
 #include "../engine/engine.h"
 
+namespace Firefly {
 class Window {
 public:
     Window();
@@ -33,3 +34,4 @@ private:
 
     Engine* engine;
 };
+}

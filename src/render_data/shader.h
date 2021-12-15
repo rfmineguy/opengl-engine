@@ -4,10 +4,11 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 
+namespace Firefly {
 class Shader {
 public:
     Shader() = default;
-    Shader(std::string tag);
+    Shader(const std::string& tag, const std::string& path);
     
     //delete copy ctor
     Shader(const Shader&) = delete;
@@ -41,6 +42,7 @@ private:
 
 //Member variables
 private:
+    std::string path;
     std::string vertPath;
     std::string fragPath;
     std::string vertexSource;
@@ -55,3 +57,4 @@ public:
     unsigned int shaderProgramHandle;
     std::string tag;
 };
+}

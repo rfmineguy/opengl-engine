@@ -5,13 +5,11 @@
 #include "engineData.h"
 #include "imgui/imgui.h"
 #include "imgui/imgui_stdlib.h"
-#include "imgui_file_dialog/ImGuiFileDialog.h"
 
-#include "../util/fileUtil.h"
+#include <filesystem>
 
 class ImGuiLayer;
 
-namespace Firefly {
 //define the editor panels
 struct ImGuiMenuPanel {
     bool isResourcePanelEnabled;
@@ -24,7 +22,6 @@ struct ImGuiMenuPanel {
     bool isPropertiesPanelEnabled;
     bool isScriptEditorPanelEnabled;
     bool isDemoWindowEnabled;
-    std::string selectedDirectory;
 
     ImGuiMenuPanel() {
         isResourcePanelEnabled = true;
@@ -40,44 +37,8 @@ struct ImGuiMenuPanel {
     }
 
     void Draw() {
-        MenuBar();
-        OpenProjectModal();
-    }
-
-    void TestFileDialog() {
-        // open Dialog Simple
-        if (ImGui::Button("Open File Dialog"))
-            //ImGuiFileDialog::Instance()->OpenModal("ChooseFileDlgKey", "Choose File", ".*,.atlas,.png,.lua,.yaml", ".");
-            ImGuiFileDialog::Instance()->OpenModal("ChooseDirDlgKey", "Choose a Directory", nullptr, ".");
-
-        // display
-        if (ImGuiFileDialog::Instance()->Display("ChooseDirDlgKey")) 
-        {
-            // action if OK
-            if (ImGuiFileDialog::Instance()->IsOk())
-            {
-                selectedDirectory = ImGuiFileDialog::Instance()->GetFilePathName();
-                LOG_DEBUG("{}", selectedDirectory.c_str());
-                EngineData::Get().rootDir = selectedDirectory;
-                EngineData::Get().currentDir = selectedDirectory;
-            }
-    
-            // close
-            ImGuiFileDialog::Instance()->Close();
-        }
-    }
-
-    void MenuBar() {
         if (ImGui::BeginMenuBar()) {
             if (ImGui::BeginMenu("File")) {
-                if (ImGui::Button("New Project")) {
-                    ImGui::OpenPopup("Project Creator");
-                }
-                NewProjectModal();
-                if (ImGui::Button("Open Project")) {
-                    ImGui::OpenPopup("Project Open");
-                }
-                OpenProjectModal();
                 if (ImGui::MenuItem("New Scene")) {}
                 if (ImGui::MenuItem("Save Scene")) {}
                 if (ImGui::MenuItem("Open Scene")) {}
@@ -94,37 +55,23 @@ struct ImGuiMenuPanel {
 
                 ImGui::EndMenu();
             }
-            //draw file dialog
             if (ImGui::BeginMenu("Window")) {
+                /*
+                ImGui::Checkbox("Resource Panel", &EngineData::Get().isResourcePanelEnabled);
+                ImGui::Checkbox("Signal Panel", &EngineData::Get().isSignalPanelEnabled);
+                ImGui::Checkbox("Registry Panel", &EngineData::Get().isRegistryPanelEnabled);
+                ImGui::Checkbox("Viewport Panel", &EngineData::Get().isViewportPanelEnabled);
+                ImGui::Checkbox("Console Panel", &EngineData::Get().isConsolePanelEnabled);
+                ImGui::Checkbox("Stat Panel", &EngineData::Get().isStatPanelEnabled);
+                ImGui::Checkbox("Properties Panel", &EngineData::Get().isPropertiesPanelEnabled);
+                ImGui::Checkbox("File Manager Panel", &EngineData::Get().isFileManagerPanelEnabled);
+                ImGui::Separator();
+                */
                 ImGui::Checkbox("ImGuiDemoWindow", &EngineData::Get().isDemoWindowEnabled);
                 ImGui::EndMenu();
             }
             ImGui::EndMenuBar();
         }
-    }
-
-    void NewProjectModal() {
-        ImGuiStyle& style = ImGui::GetStyle();
-        style.WindowMenuButtonPosition = 1;
-        if (ImGui::BeginPopupModal("Project Creator", NULL, ImGuiWindowFlags_MenuBar)) {
-            ImGui::Text("Location : %s", EngineData::Get().rootDir.c_str());// ImGui::SameLine();
-
-            TestFileDialog();
-            if (ImGui::Button("Create Project", {64, 64})) {
-                if (FileUtil::CreateProjectDirectory(EngineData::Get().rootDir)) {
-                    //project already exists
-                }
-            }
-
-            if (ImGui::Button("Cancel", {64, 64}))
-                ImGui::CloseCurrentPopup();
-                    
-            ImGui::EndPopup();
-        }
-    }
-
-    void OpenProjectModal() {
-
     }
 };
 struct ImGuiRegistryPanel {
@@ -133,10 +80,9 @@ struct ImGuiRegistryPanel {
         if (ImGui::CollapsingHeader("GameObjects")) {
             ImGuiIO& io = ImGui::GetIO();
             for (const auto &entry : Registry::Get().entities) {
-                std::string displayName = Registry::GetComponent<Identifier>(entry.first).displayName;
-                std::string id = Registry::GetComponent<Identifier>(entry.first).id;
-                if (ImGui::Selectable(displayName.c_str())) 
-                    EngineData::SetSelected(SelectionType::GAMEOBJECT, id);
+                std::string objectId = Registry::GetComponent<Identifier>(entry.first).id;
+                if (ImGui::Selectable(objectId.c_str())) 
+                    EngineData::SetSelected(SelectionType::GAMEOBJECT, objectId);
             }
         }
         ImGui::End();
@@ -172,24 +118,6 @@ struct ImGuiResourcesPanel {
                     EngineData::SetSelected(SelectionType::SHADER, t.second.get()->tag);
             }
         }
-        if(ImGui::CollapsingHeader("Engine Textures")) {
-            for (const auto& t : ResourceManager::Get().uEngineTextures) {
-                if (ImGui::Selectable(t.second.get()->tag.c_str()))
-                    EngineData::SetSelected(SelectionType::ENGINE_TEXTURE, t.second.get()->tag);
-            }
-        }
-        if (ImGui::CollapsingHeader("Engine TextureAtlases")) {
-            for (const auto& t : ResourceManager::Get().uEngineTextureAtlases) {
-                 if (ImGui::Selectable(t.second.get()->tag.c_str()))
-                    EngineData::SetSelected(SelectionType::ENGINE_TEXTURE_ATLAS, t.second.get()->tag);
-            }
-        }
-        if (ImGui::CollapsingHeader("Engine Shaders")) {
-            for (const auto& t : ResourceManager::Get().uEngineShaders) {
-                if (ImGui::Selectable(t.second.get()->tag.c_str()))
-                    EngineData::SetSelected(SelectionType::ENGINE_SHADER, t.second.get()->tag);
-            }
-        }
         ImGui::End();
     }
 };
@@ -198,20 +126,16 @@ struct ImGuiStatsPanel {
         ImGui::Begin("Statistics");
         ImGui::Text("Mouse Position {%0.4f %0.4f}", Input.mouse.x, Input.mouse.y);
         ImGui::Text("Viewport Size {%d %d}", Renderer2D::Get().frameBuffer.GetWidth(), Renderer2D::Get().frameBuffer.GetHeight());
-        ImGui::Text("Current Project {%s}", EngineData::Get().currentDir.c_str());
         ImGui::End();
     }
 };
+
 struct ImGuiPropertiesPanel {
-    const float DRAW_SIZE = 256;
-    struct CallbackData {
-        std::string* registryId;
-        std::string* displayName;
-    };
     struct PropertiesCallbacks {
-        static int DisplayNameChanged(ImGuiInputTextCallbackData* data) {
+        static int TextChanged(ImGuiInputTextCallbackData* data) {
             if (data->EventFlag == ImGuiInputTextFlags_CallbackEdit) {
-                CallbackData* callbackdata = (CallbackData*)data->UserData;
+                LOG_DEBUG("Editing textfield");
+                data->Buf;
             }
             return 0;
         }
@@ -225,67 +149,11 @@ struct ImGuiPropertiesPanel {
         if (EngineData::Get().selectionType == SelectionType::GAMEOBJECT) {
             ImGui::Text("GameObject");
             GameObject& object = Registry::GetRegisteredGameObject(EngineData::Get().selectionId);
-           
-            DisplayComponents(object);
-            AddComponentWigdet(object);
-        }
-        else if (EngineData::Get().selectionType == SelectionType::SIGNAL) {
-            ImGui::Text("Signal");
-        }
-        else if (EngineData::Get().selectionType == SelectionType::TEXTURE) {
-            ImGui::Text("Texture");
-            Texture* t = ResourceManager::GetProjectResource<Texture>(EngineData::Get().selectionId);
-            if (t != nullptr) {
-                ImGui::Image((void*)(intptr_t) t->textureHandle, ImVec2{DRAW_SIZE, DRAW_SIZE}, ImVec2{0, 1}, ImVec2{1, 0});
-            }
-        }
-        else if (EngineData::Get().selectionType == SelectionType::ENGINE_TEXTURE) {
-            ImGui::Text("Texture");
-            Texture* t = ResourceManager::GetEngineResource<Texture>(EngineData::Get().selectionId);
-            if (t != nullptr) {
-                ImGui::Image((void*)(intptr_t) t->textureHandle, ImVec2{DRAW_SIZE, DRAW_SIZE}, ImVec2{0, 1}, ImVec2{1, 0});
-            }
-        }
-        else if (EngineData::Get().selectionType == SelectionType::TEXTURE_ATLAS) {
-            ImGui::Text("Texture Atlas");
-            TextureAtlas* a = ResourceManager::GetProjectResource<TextureAtlas>(EngineData::Get().selectionId);
-            if (a != nullptr) {
-                ImGui::Image((void*)(intptr_t) a->textureHandle, ImVec2{DRAW_SIZE, DRAW_SIZE}, ImVec2{0, 1}, ImVec2{1, 0});
-            }
-        }
-        else if (EngineData::Get().selectionType == SelectionType::ENGINE_TEXTURE_ATLAS) {
-            ImGui::Text("Texture Atlas");
-            TextureAtlas* a = ResourceManager::GetEngineResource<TextureAtlas>(EngineData::Get().selectionId);
-            if (a != nullptr) {
-                ImGui::Image((void*)(intptr_t) a->textureHandle, ImVec2{DRAW_SIZE, DRAW_SIZE}, ImVec2{0, 1}, ImVec2{1, 0});
-            }
-        }
-        else if (EngineData::Get().selectionType == SelectionType::SHADER) {
-            ImGui::Text("Shader");
-            Shader* s = ResourceManager::GetProjectResource<Shader>(EngineData::Get().selectionId);
-            if (s != nullptr) {
-                ImGui::Text("%s", s->tag.c_str());
-            }
-        }
-        else if (EngineData::Get().selectionType == SelectionType::ENGINE_SHADER) {
-            ImGui::Text("Shader");
-            Shader* s = ResourceManager::GetEngineResource<Shader>(EngineData::Get().selectionId);
-            if (s != nullptr) {
-                ImGui::Text("%s", s->tag.c_str());
-            }
-        }
-        ImGui::End();
-    }
-
-    void DisplayComponents(GameObject& object) {
             if (Registry::HasComponent<Identifier>(object)) {
                 if (ImGui::TreeNode("Identifier")) {
-                    CallbackData data;
-                    data.registryId = &Registry::GetComponent<Identifier>(object).id;
-                    data.displayName = &Registry::GetComponent<Identifier>(object).displayName;
-
-                    ImGui::Text("ID: %s", data.registryId->c_str());
-                    ImGui::InputText("Display Name: ", &*data.displayName, ImGuiInputTextFlags_CallbackEdit, PropertiesCallbacks::DisplayNameChanged, (void*)&data);
+                    std::string id = Registry::GetComponent<Identifier>(object).id;
+                    ImGui::Text("ID: %s", id.c_str());
+                    ImGui::InputText("Display Name: ", &id, ImGuiInputTextFlags_CallbackEdit, PropertiesCallbacks::TextChanged);
                     ImGui::TreePop();
                 }
             }
@@ -300,9 +168,8 @@ struct ImGuiPropertiesPanel {
             }
             if (Registry::HasComponent<Renderable>(object)) {
                 if (ImGui::TreeNode("Renderable")) {
-                    CallbackData data;
                     Renderable& r = Registry::GetComponent<Renderable>(object);
-                    TextureAtlas* atlas = ResourceManager::GetProjectResource<TextureAtlas>(r.resourceId);
+                    TextureAtlas* atlas = ResourceManager::GetTextureAtlas(r.resourceId);
                     ImGui::Image((void*)(intptr_t) atlas->textureHandle, ImVec2{64, 64}, ImVec2{0, 1}, ImVec2{1, 0});
                     ImGui::TreePop();
                 }
@@ -316,10 +183,7 @@ struct ImGuiPropertiesPanel {
             if (Registry::HasComponent<Script>(object)) {
 
             }
-    }
-
-    void AddComponentWigdet(GameObject& object) {
-        if (ImGui::Button("Add Component")) {
+            if (ImGui::Button("Add Component")) {
                 ImGui::OpenPopup("add_component_popup");
             }
             if (ImGui::BeginPopup("add_component_popup")) {
@@ -340,6 +204,28 @@ struct ImGuiPropertiesPanel {
                 }
                 ImGui::EndPopup();
             }
+        }
+        else if (EngineData::Get().selectionType == SelectionType::SIGNAL) {
+            ImGui::Text("Signal");
+        }
+        else if (EngineData::Get().selectionType == SelectionType::TEXTURE) {
+            ImGui::Text("Texture");
+        }
+        else if (EngineData::Get().selectionType == SelectionType::TEXTURE_ATLAS) {
+            ImGui::Text("Texture Atlas");
+            TextureAtlas* a = ResourceManager::GetTextureAtlas(EngineData::Get().selectionId);
+            if (a != nullptr) {
+                ImGui::Image((void*)(intptr_t) a->textureHandle, ImVec2{64, 64}, ImVec2{0, 1}, ImVec2{1, 0});
+            }
+        }
+        else if (EngineData::Get().selectionType == SelectionType::SHADER) {
+            ImGui::Text("Shader");
+            Shader* s = ResourceManager::GetShader(EngineData::Get().selectionId);
+            if (s != nullptr) {
+                ImGui::Text("%s", s->tag.c_str());
+            }
+        }
+        ImGui::End();
     }
 };
 struct ImGuiViewportPanel {
@@ -371,6 +257,12 @@ struct ImGuiViewportPanel {
             Renderer2D::Get().frameBuffer.Resize(viewportSize.x, viewportSize.y);
             lastViewportSize = { viewportSize.x, viewportSize.y };
         }
+        ImGui::GetForegroundDrawList()->AddRect(vMin, vMax, IM_COL32(255, 255, 0, 255));
+
+        ImGui::GetForegroundDrawList()->AddCircleFilled(vMax, 15, IM_COL32(100, 100, 100, 255));
+        ImGui::GetForegroundDrawList()->AddCircleFilled(vMin, 15, IM_COL32(255, 100, 100, 255));
+        ImGui::GetForegroundDrawList()->AddCircle(mousePos, 25, IM_COL32(255, 255, 0, 255));
+        ImGui::GetForegroundDrawList()->AddCircle(ImVec2{Input.mouse.x, Input.mouse.y}, 15, IM_COL32(255, 0, 0, 255));
         ImGui::End();
         ImGui::PopStyleVar();
     }
@@ -404,8 +296,7 @@ struct ImGuiConsolePanel {
         
     }
     void Draw() {
-        ImGui::Begin("Console");
-
+        ImGui::Begin("Log");
         if (ImGui::BeginPopup("Options")) {
             ImGui::Checkbox("Debug Logging", &showDebugMessage);
             ImGui::Checkbox("Info Logging", &showInfoMessage);
@@ -446,22 +337,16 @@ struct ImGuiScriptEditorPanel {
     }
 };
 struct ImGuiFileManagerPanel {
+    const std::filesystem::path assetPath;
+
     ImGuiFileManagerPanel()
-    {
+    :assetPath("res"){
+        EngineData::Get().currentDir = assetPath;
     }
     void Draw() {
         ImGui::Begin("File Manager");
-      
-        if (EngineData::Get().rootDir.empty()) {
-            float w = ImGui::GetWindowWidth();
-            float h = ImGui::GetWindowHeight();
-            ImGui::SetCursorPos({w/2 - 20, h/2});
-            ImGui::Text("No project directory selected");
-            ImGui::End();
-            return;
-        }
-
-        if (EngineData::Get().currentDir != EngineData::Get().rootDir) {
+       
+        if (EngineData::Get().currentDir != std::filesystem::path(assetPath)) {
             if (ImGui::Button("<-")) {
                 EngineData::Get().currentDir = EngineData::Get().currentDir.parent_path();
             }
@@ -470,35 +355,26 @@ struct ImGuiFileManagerPanel {
         const int itemSpacing = 16;
         const int columnsWide = ImGui::GetWindowContentRegionWidth() / 128;
         ImGui::BeginTable("File Manager", columnsWide);
-        
-        ImGui::TableNextColumn();
-        int id = 0;
+        int counter = 0;
         for (auto& p : std::filesystem::directory_iterator(EngineData::Get().currentDir)) {
             const auto& path = p.path();
-            auto relPath = std::filesystem::relative(path, EngineData::Get().rootDir);
+            auto relPath = std::filesystem::relative(path, assetPath);
             std::string filenameStr = relPath.filename().string();
-            
-            Texture* folderTex = ResourceManager::GetEngineResource<Texture>("folder_icon");
-            Texture* fileTex = ResourceManager::GetEngineResource<Texture>("file_icon");
-            ImGui::PushID(id);           
-            
-            if (p.is_directory()) {
-                if (ImGui::ImageButton((void*)(intptr_t) folderTex->textureHandle, ImVec2{128, 128}, ImVec2{0, 1}, ImVec2{1, 0})) {
-                    LOG_DEBUG("Move directories");
+
+            if (ImGui::Button(filenameStr.c_str(), ImVec2{128, 128})) {
+                if (p.is_directory()) {
+                    //navigate to the selected folder
                     EngineData::Get().currentDir /= path.filename();
                 }
-                ImGui::Text("%s", filenameStr.c_str());
-            }
-            else {
-                if (ImGui::ImageButton((void*)(intptr_t) fileTex->textureHandle, ImVec2{128, 128}, ImVec2{0, 1}, ImVec2{1, 0})) {
-                    LOG_DEBUG("Open file");
-                } 
-                ImGui::Text("%s", filenameStr.c_str());
+                else {
+                    //open file, or do some dragging stuff here
+                }
             }
 
-            ImGui::PopID();
-            id++;
-
+            if (counter == columnsWide - 1) {
+                ImGui::TableNextRow();
+                ImGui::TableSetColumnIndex(0);
+            }
             ImGui::TableNextColumn();
         }
         ImGui::EndTable();
@@ -614,11 +490,9 @@ private:
         if (EngineData::Get().isPropertiesPanelEnabled)
             Get().propertiesPanel.Draw();
         
-        /*
         if (EngineData::Get().isConsolePanelEnabled)
             Get().consolePanel.Draw();
-        */
-
+       
         if (EngineData::Get().isScriptEditorPanelEnabled)
             Get().scriptEditor.Draw();
         
@@ -656,4 +530,3 @@ private:
 public:
     friend class Window;
 };
-}

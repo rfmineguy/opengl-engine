@@ -1,4 +1,6 @@
 #pragma once
+
+namespace Firefly {
 struct FrameBufferSpec {
     unsigned int width, height;
     unsigned int samples = 1;
@@ -30,4 +32,4 @@ public:
 
 friend class Renderer2D;
 };
-
+}

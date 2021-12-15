@@ -5,10 +5,11 @@
 #include "../../vendor/stb/stb_image.h"
 #include "glad/glad.h"
 
+namespace Firefly {
 class Texture {
 public:
-    Texture();
-    Texture(std::string tag);
+    Texture() = default;
+    Texture(const std::string& tag, const std::string& path);
 
     //delete copy ctor
     Texture(const Texture&) = delete;
@@ -35,3 +36,4 @@ public:
 private:
     unsigned char* data;
 };
+}

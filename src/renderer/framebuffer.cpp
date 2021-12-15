@@ -2,6 +2,7 @@
 #include "framebuffer.h"
 #include <glad/glad.h>
 
+namespace Firefly {
 FrameBuffer::FrameBuffer() 
 {
 }
@@ -22,11 +23,12 @@ void FrameBuffer::Invalidate() {
     if (rendererId) {
         glDeleteFramebuffers(1, &rendererId);
         glDeleteTextures(1, &colorAttachmentId);
+        glDeleteTextures(1, &depthAttachmentId);
         depthAttachmentId = 0;
-        LOG_DEBUG("Resetting framebuffer");
+        //LOG_DEBUG("Resetting framebuffer");
     }
     
-    LOG_INFO("{} x {}", width, height);
+    //LOG_INFO("{} x {}", width, height);
 
     glGenFramebuffers(1, &rendererId);
     glBindFramebuffer(GL_FRAMEBUFFER, rendererId);
@@ -49,14 +51,14 @@ void FrameBuffer::Invalidate() {
         LOG_ERROR("Incomplete framebuffer {}", glGetError());
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
 }
 
 void FrameBuffer::Bind() {
     glBindFramebuffer(GL_FRAMEBUFFER, rendererId);
-    glViewport(0, 0, width, height);
+    //glViewport(0, 0, width, height);
 }
 
 void FrameBuffer::Unbind() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
 }

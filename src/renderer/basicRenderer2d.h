@@ -9,6 +9,7 @@
 
 #include "entt/entt.hpp"
 
+namespace Firefly {
 class BasicRenderer2D {
 public:
     BasicRenderer2D();
@@ -29,3 +30,4 @@ private:
     unsigned int vao, vbo, ebo;
     unsigned int textureVbo;
 };
+}

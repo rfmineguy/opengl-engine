@@ -29,10 +29,12 @@ void OrthoCamera::Movement() {
         DeltaPos(-1, 0);
     if (Input.keys[GLFW_KEY_D])
         DeltaPos(1, 0);
+    /*
     if (Input.keys[GLFW_KEY_LEFT])
         DeltaRot(-0.01f);
     if (Input.keys[GLFW_KEY_RIGHT])
         DeltaRot(0.01f);
+    */
 }
 
 void OrthoCamera::UpdateProj(int width, int height) {

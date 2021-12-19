@@ -14,6 +14,7 @@ public:
     Engine();
     ~Engine();
     void Create();
+    void Destroy();
     void Update(float dt);
     void Draw();
     void Resize(int width, int height);

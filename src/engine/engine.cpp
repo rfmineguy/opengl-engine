@@ -1,5 +1,10 @@
 #include "engine.h"
-#include "imgui.h"
+#include "../serializer/serializer.h"
+
+struct Test {
+    int x = 34;
+    char cstr[14] = "Hello World";
+};
 
 Firefly::Engine::Engine() {
     Create();
@@ -10,6 +15,9 @@ Firefly::Engine::~Engine() {
 }
 
 void Firefly::Engine::Create() {
+    //Load last opened project or none if no cached project was found
+
+    EngineData::Deserialize();  //load saved engine data
     ResourceManager::LoadEngineResource<Texture>("folder_icon", "res/engine_files/file_browser/folder.png");
     ResourceManager::LoadEngineResource<Texture>("file_icon", "res/engine_files/file_browser/txt_file.png");
     ResourceManager::LoadProjectResource<Shader>("test_shader", "/home/rfmineguy/Documents/FireflyEngineProjects/shaders/experimental/");
@@ -18,7 +26,7 @@ void Firefly::Engine::Create() {
 
     Renderer2D::Init();
     ImGuiLayer::Init();
-   
+  
     for (int i = 0; i < 10; i++) {
         for (int j = 0; j < 10; j++) {
             std::string id = "object" + std::to_string(i) + std::to_string(j);
@@ -31,6 +39,17 @@ void Firefly::Engine::Create() {
                 Registry::AddComponent<Renderable>(object, "spritesheet", "player");
         }
     }
+    Test t;
+    t.x = 34;
+    strcpy(t.cstr, "Hello World");
+    Serializer::SerializeBin<Test>("res/test.bin", t);
+    t = Serializer::DeSerializeBin<Test>("res/test.bin");
+    LOG_INFO("{}{}", t.x, t.cstr);
+    LOG_INFO("End create");
+}
+
+void Firefly::Engine::Destroy() {
+    EngineData::Serialize();
 }
 
 void Firefly::Engine::Update(float dt) {

@@ -9,7 +9,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -pthread")
 file(COPY res DESTINATION ${CMAKE_BINARY_DIR})
 
 add_compile_options(
-    #tells you if a redundant move operation occurred
+    #tells you if a redundant move operation occurred (works only with c++)
     -Wno-redundant-move
     )
 
@@ -35,6 +35,7 @@ set(SOURCES
     src/engine/imguilayer.h
     
     src/engine/engine.cpp
+    src/serializer/serializer.h
     )
 
 include (FetchContent)

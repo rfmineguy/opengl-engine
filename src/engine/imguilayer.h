@@ -14,30 +14,7 @@ class ImGuiLayer;
 namespace Firefly {
 //define the editor panels
 struct ImGuiMenuPanel {
-    bool isResourcePanelEnabled;
-    bool isSignalPanelEnabled;
-    bool isFileManagerPanelEnabled;
-    bool isRegistryPanelEnabled;
-    bool isViewportPanelEnabled;
-    bool isConsolePanelEnabled;
-    bool isStatPanelEnabled;
-    bool isPropertiesPanelEnabled;
-    bool isScriptEditorPanelEnabled;
-    bool isDemoWindowEnabled;
     std::string selectedDirectory;
-
-    ImGuiMenuPanel() {
-        isResourcePanelEnabled = true;
-        isSignalPanelEnabled = true;
-        isFileManagerPanelEnabled = true;
-        isRegistryPanelEnabled = true;
-        isViewportPanelEnabled = true;
-        isConsolePanelEnabled = true;
-        isStatPanelEnabled = true;
-        isPropertiesPanelEnabled = true;
-        isScriptEditorPanelEnabled = true;
-        isDemoWindowEnabled = false;
-    }
 
     void Draw() {
         MenuBar();
@@ -81,6 +58,7 @@ struct ImGuiMenuPanel {
                 if (ImGui::MenuItem("New Scene")) {}
                 if (ImGui::MenuItem("Save Scene")) {}
                 if (ImGui::MenuItem("Open Scene")) {}
+                if (ImGui::MenuItem("Close Scene")) {}
                 if (ImGui::MenuItem("Open Recent")) {}
                 if (ImGui::MenuItem("Quit")) {}
                 ImGui::EndMenu();
@@ -96,7 +74,7 @@ struct ImGuiMenuPanel {
             }
             //draw file dialog
             if (ImGui::BeginMenu("Window")) {
-                ImGui::Checkbox("ImGuiDemoWindow", &EngineData::Get().isDemoWindowEnabled);
+                ImGui::Checkbox("ImGuiDemoWindow", &EngineData::Preferences().isDemoWindowEnabled);
                 ImGui::EndMenu();
             }
             ImGui::EndMenuBar();
@@ -492,7 +470,7 @@ struct ImGuiFileManagerPanel {
             else {
                 if (ImGui::ImageButton((void*)(intptr_t) fileTex->textureHandle, ImVec2{128, 128}, ImVec2{0, 1}, ImVec2{1, 0})) {
                     LOG_DEBUG("Open file");
-                } 
+                }
                 ImGui::Text("%s", filenameStr.c_str());
             }
 
@@ -596,22 +574,22 @@ private:
     static void DrawUI() {
         Get().menuPanel.Draw();
 
-        if (EngineData::Get().isRegistryPanelEnabled)
+        if (EngineData::Preferences().isRegistryPanelEnabled)
             Get().registryPanel.Draw();
         
-        if (EngineData::Get().isSignalPanelEnabled)
+        if (EngineData::Preferences().isSignalPanelEnabled)
             Get().signalsPanel.Draw();
         
-        if (EngineData::Get().isViewportPanelEnabled)
+        if (EngineData::Preferences().isViewportPanelEnabled)
             Get().viewportPanel.Draw();
         
-        if (EngineData::Get().isResourcePanelEnabled)
+        if (EngineData::Preferences().isResourcePanelEnabled)
             Get().resourcesPanel.Draw();
         
-        if (EngineData::Get().isStatPanelEnabled)
+        if (EngineData::Preferences().isStatPanelEnabled)
             Get().statsPanel.Draw();
         
-        if (EngineData::Get().isPropertiesPanelEnabled)
+        if (EngineData::Preferences().isPropertiesPanelEnabled)
             Get().propertiesPanel.Draw();
         
         /*
@@ -619,19 +597,17 @@ private:
             Get().consolePanel.Draw();
         */
 
-        if (EngineData::Get().isScriptEditorPanelEnabled)
+        if (EngineData::Preferences().isScriptEditorPanelEnabled)
             Get().scriptEditor.Draw();
         
-        if (EngineData::Get().isFileManagerPanelEnabled)
+        if (EngineData::Preferences().isFileManagerPanelEnabled)
             Get().fileManager.Draw();
 
-        if (EngineData::Get().isSceneHeirarchyPanelEnabled)
+        if (EngineData::Preferences().isSceneHeirarchyPanelEnabled)
             Get().sceneHeirarchyPanel.Draw();
 
-        if (EngineData::Get().isDemoWindowEnabled)
+        if (EngineData::Preferences().isDemoWindowEnabled)
             ImGui::ShowDemoWindow();
-
-
     }
 
 private:
@@ -644,7 +620,7 @@ private:
     ImGuiMenuPanel menuPanel;
     ImGuiViewportPanel viewportPanel;
     ImGuiRegistryPanel registryPanel;
-    ImGuiConsolePanel consolePanel;
+    //ImGuiConsolePanel consolePanel;
     ImGuiStatsPanel statsPanel;
     ImGuiPropertiesPanel propertiesPanel;
     ImGuiSignalsPanel signalsPanel;

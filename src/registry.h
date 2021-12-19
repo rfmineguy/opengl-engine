@@ -142,6 +142,7 @@ private:
     std::map<std::string, std::unique_ptr<GameObject>> entities;
 
     friend class Renderer2D;
+    friend class Serializer;
     friend class ImGuiRegistryPanel;
     friend class ImGuiLayer;
 };

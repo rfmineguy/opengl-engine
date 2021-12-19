@@ -188,6 +188,7 @@ void Window::Update() {
         }
         
         if (engine) {
+            engine->Destroy();
             delete engine;
             LOG_INFO("Deleted engine");
         }

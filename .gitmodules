@@ -5,3 +5,11 @@
 [submodule "spdlog"]
     path = vendor/spdlog
     url = https://github.com/gabime/spdlog
+
+[submodule "glfw"]
+    path = vendor/glfw
+    url = https://github.com/glfw/glfw
+
+[submodule "entt"]
+    path = vendor/entt
+    url = https://github.com/skypjack/entt

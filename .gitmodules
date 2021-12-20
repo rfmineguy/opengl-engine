@@ -6,13 +6,14 @@
     path = vendor/spdlog
     url = https://github.com/gabime/spdlog
 
-[submodule "entt"]
-    path = vendor/entt
-    url = https://github.com/skypjack/entt
-
 [submodule "vendor/glfw"]
 	path = vendor/glfw
 	url = https://github.com/glfw/glfw
+
 [submodule "vendor/entt"]
 	path = vendor/entt
 	url = https://github.com/skypjack/entt
+
+[submodule "vendor/jsoncpp"]
+    path = vendor/jsoncpp
+    url = https://github.com/open-source-parsers/jsoncpp

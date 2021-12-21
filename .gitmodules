@@ -13,7 +13,6 @@
 [submodule "vendor/entt"]
 	path = vendor/entt
 	url = https://github.com/skypjack/entt
-
-[submodule "vendor/jsoncpp"]
-    path = vendor/jsoncpp
-    url = https://github.com/open-source-parsers/jsoncpp
+[submodule "vendor/json"]
+	path = vendor/json
+	url = https://github.com/nlohmann/json

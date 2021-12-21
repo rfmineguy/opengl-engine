@@ -1,0 +1,18 @@
+{
+    "engine-state": {
+        "open-project": "/home/rfmineguy/Documents/FireflyEngineProjects/testProject"
+    },
+    "engine-prefs": {
+        "isResourcePanelEnabled": true,
+        "isSignalPanelEnabled": true,
+        "isFileManagerPanelEnabled": true,
+        "isRegistryPanelEnabled": true,
+        "isViewportPanelEnabled": true,
+        "isConsolePanelEnabled": true,
+        "isStatPanelEnabled": true,
+        "isPropertiesPanelEnabled": true,
+        "isScriptEditorPanelEnabled": true,
+        "isSceneHeirarchyPanelEnabled": true,
+        "isDemoWindowEnabled": false
+    }
+}

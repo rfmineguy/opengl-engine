@@ -2,6 +2,7 @@
 #include <string>
 #include <filesystem>
 #include "../serializer/serializable.h"
+#include "../serializer/json-serializable.h"
 
 namespace Firefly {
 enum class SelectionType {
@@ -9,7 +10,7 @@ enum class SelectionType {
 };
 
 //stores the user's preferences
-struct EnginePreferences : public Serializable<EnginePreferences> {
+struct EnginePreferences : public JsonSerializable {
     bool isResourcePanelEnabled = true;
     bool isSignalPanelEnabled = true;
     bool isFileManagerPanelEnabled = true;
@@ -22,29 +23,48 @@ struct EnginePreferences : public Serializable<EnginePreferences> {
     bool isSceneHeirarchyPanelEnabled = true;
     bool isDemoWindowEnabled = false;
 
-    void Serialize(const std::string& location) override {
-        Serializer::SerializeBin<EnginePreferences>(location, *this);
-        LOG_DEBUG("Serialized EnginePreferences {}", location);
+    void Serialize(json& jValue) override {
+        jValue["engine-prefs"]["isResourcePanelEnabled"]       = isResourcePanelEnabled;
+        jValue["engine-prefs"]["isSignalPanelEnabled"]         = isSignalPanelEnabled;
+        jValue["engine-prefs"]["isFileManagerPanelEnabled"]    = isFileManagerPanelEnabled;
+        jValue["engine-prefs"]["isRegistryPanelEnabled"]       = isRegistryPanelEnabled;
+        jValue["engine-prefs"]["isViewportPanelEnabled"]       = isViewportPanelEnabled;
+        jValue["engine-prefs"]["isConsolePanelEnabled"]        = isConsolePanelEnabled;
+        jValue["engine-prefs"]["isStatPanelEnabled"]           = isStatPanelEnabled;
+        jValue["engine-prefs"]["isPropertiesPanelEnabled"]     = isPropertiesPanelEnabled;
+        jValue["engine-prefs"]["isScriptEditorPanelEnabled"]   = isScriptEditorPanelEnabled;
+        jValue["engine-prefs"]["isSceneHeirarchyPanelEnabled"] = isSceneHeirarchyPanelEnabled;
+        jValue["engine-prefs"]["isDemoWindowEnabled"]          = isDemoWindowEnabled;
     }
 
-    EnginePreferences& Deserialize(const std::string& location) override {
-        Serializer::DeSerializeBin<EnginePreferences>(location, *this);
-        return *this;
+    void Deserialize(json& jValue) override {
+       isResourcePanelEnabled       = jValue["engine-prefs"]["isResourcePanelEnabled"]; 
+       isSignalPanelEnabled         = jValue["engine-prefs"]["isSignalPanelEnabled"]; 
+       isFileManagerPanelEnabled    = jValue["engine-prefs"]["isFileManagerPanelEnabled"]; 
+       isRegistryPanelEnabled       = jValue["engine-prefs"]["isRegistryPanelEnabled"]; 
+       isViewportPanelEnabled       = jValue["engine-prefs"]["isViewportPanelEnabled"]; 
+       isConsolePanelEnabled        = jValue["engine-prefs"]["isConsolePanelEnabled"]; 
+       isStatPanelEnabled           = jValue["engine-prefs"]["isStatPanelEnabled"];
+       isPropertiesPanelEnabled     = jValue["engine-prefs"]["isPropertiesPanelEnabled"]; 
+       isSceneHeirarchyPanelEnabled = jValue["engine-prefs"]["isSceneHeirarchyPanelEnabled"]; 
+       isDemoWindowEnabled          = jValue["engine-prefs"]["isDemoWindowEnabled"]; 
     }
 };
 
 //stores the last state of the engine
-struct EngineState : public Serializable<EngineState> {
-    std::string openProject = ""; //the path of the last project that was open
+//can't serialize an `std::string` as binary
+struct EngineState : public JsonSerializable {
+    std::filesystem::path openProjectRoot = ""; //the path of the last project that was open
+    std::filesystem::path currentDir = "";
 
-    void Serialize(const std::string& location) override {
-        Serializer::SerializeBin<EngineState>(location, *this);
-        LOG_DEBUG("Serialized EngineState {}", location);
+    void Serialize(json& jValue) override {
+        jValue["engine-state"]["open-project"] = openProjectRoot;//.root_path();
     }
 
-    EngineState& Deserialize(const std::string& location) override {
-        Serializer::DeSerializeBin<EngineState>(location, *this);
-        return *this;
+    void Deserialize(json& jValue) override {
+        std::string openProjPath = jValue["engine-state"]["open-project"];
+        openProjectRoot = openProjPath; 
+        currentDir = openProjectRoot;
     }
 };
 
@@ -70,22 +90,23 @@ public:
 
     static void Serialize() {
         LOG_INFO("Serializing engine data");
-        Get().state.Serialize("res/engine_files/engine_state.bin");
-        Get().preferences.Serialize("res/engine_files/engine_pref.bin");
+        std::fstream fs("res/engine_files/engine.json", std::ios::out);
+        json root;
+        Get().preferences.Serialize(root);
+        Get().state.Serialize(root);
+        fs << root;
+        fs.close();
     }
 
     static void Deserialize() {
         LOG_INFO("Deserializing engine data");
-        Get().state.Deserialize("res/engine_files/engine_state.bin");
-        Get().preferences.Deserialize("res/engine_files/engine_pref.bin");
-
-        //down here we can initialize everything
-        Get().rootDir = Get().state.openProject;
-        Get().currentDir = Get().state.openProject;
+        std::fstream fs("res/engine_files/engine.json", std::ios::in);
+        json root;
+        fs >> root;
+        fs.close();
+        Get().state.Deserialize(root);
+        Get().preferences.Deserialize(root);
     }
-
-private:
-    std::filesystem::path rootDir = "", currentDir = "";
 
 private:
     SelectionType selectionType;

@@ -5,6 +5,7 @@
 #include "../render_data/texture.h"
 #include "../render_data/textureAtlas.h"
 #include "../render_data/shader.h"
+#include "../engine/engineData.h"
 
 //SINGLETON CLASS
 namespace Firefly {
@@ -54,16 +55,18 @@ public:
 private:
     template <typename T>
     bool LoadProjectResourceImpl(const std::string& name, const std::string& path) {
+        std::string absPath = EngineData::Get().state.openProjectRoot;
+        absPath += path;
         if (std::is_same<T, Texture>() && uTextures.count(name) == 0) {
-            uTextures.emplace(name, std::make_unique<Texture>(name, path));
+            uTextures.emplace(name, std::make_unique<Texture>(name, absPath));
             return true;
         }
         if (std::is_same<T, TextureAtlas>() && uTextureAtlases.count(name) == 0) {
-            uTextureAtlases.emplace(name, std::make_unique<TextureAtlas>(name, path));
+            uTextureAtlases.emplace(name, std::make_unique<TextureAtlas>(name, absPath));
             return true;
         }
         if (std::is_same<T, Shader>() && uShaders.count(name) == 0) {
-            uShaders.emplace(name, std::make_unique<Shader>(name, path));
+            uShaders.emplace(name, std::make_unique<Shader>(name, absPath));
             return true;
         }
         LOG_CRITICAL("Failed to load resource {}", name.c_str());

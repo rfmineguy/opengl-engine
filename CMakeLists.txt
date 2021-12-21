@@ -13,11 +13,6 @@ add_compile_options(
     -Wno-redundant-move
     )
 
-message ("Binary Dir ${CMAKE_BINARY_DIR}")
-message ("Cmake Project Binary Dir ${CMAKE_PROJECT_BINARY_DIR}")
-message ("Project Binary Dir ${PROJECT_BINARY_DIR} ")
-message ("Current Binary Dir ${CMAKE_CURRENT_BINARY_DIR}")
-
 set(SOURCES 
     src/main.cpp
 
@@ -38,20 +33,6 @@ set(SOURCES
     src/serializer/serializer.h
     )
 
-include (FetchContent)
-
-FetchContent_Declare(
-    glfw
-    GIT_REPOSITORY https://github.com/glfw/glfw
-)
-FetchContent_MakeAvailable(glfw)
-
-FetchContent_Declare(
-    EnTT
-    GIT_REPOSITORY https://github.com/skypjack/entt
-    )
-FetchContent_MakeAvailable(EnTT)
-
 set(SPDLOG_BUILD_EXAMPLES OFF)
 
 add_subdirectory(vendor/imgui)
@@ -60,6 +41,9 @@ add_subdirectory(vendor/stb)
 add_subdirectory(vendor/spdlog)
 add_subdirectory(vendor/glad)
 add_subdirectory(vendor/glm)
+add_subdirectory(vendor/entt)
+add_subdirectory(vendor/glfw)
+add_subdirectory(vendor/json)
 
 include_directories(opengl vendor vendor/glm/glm)
 
@@ -75,4 +59,5 @@ target_link_libraries(opengl
     stb 
     EnTT::EnTT 
     spdlog::spdlog
+    nlohmann_json
 )

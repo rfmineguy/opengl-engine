@@ -35,8 +35,8 @@ struct ImGuiMenuPanel {
             {
                 selectedDirectory = ImGuiFileDialog::Instance()->GetFilePathName();
                 LOG_DEBUG("{}", selectedDirectory.c_str());
-                EngineData::Get().rootDir = selectedDirectory;
-                EngineData::Get().currentDir = selectedDirectory;
+                EngineData::Get().state.openProjectRoot = selectedDirectory;
+                EngineData::Get().state.currentDir = selectedDirectory;
             }
     
             // close
@@ -85,11 +85,11 @@ struct ImGuiMenuPanel {
         ImGuiStyle& style = ImGui::GetStyle();
         style.WindowMenuButtonPosition = 1;
         if (ImGui::BeginPopupModal("Project Creator", NULL, ImGuiWindowFlags_MenuBar)) {
-            ImGui::Text("Location : %s", EngineData::Get().rootDir.c_str());// ImGui::SameLine();
+            ImGui::Text("Location : %s", EngineData::Get().state.openProjectRoot.c_str());// ImGui::SameLine();
 
             TestFileDialog();
             if (ImGui::Button("Create Project", {64, 64})) {
-                if (FileUtil::CreateProjectDirectory(EngineData::Get().rootDir)) {
+                if (FileUtil::CreateProjectDirectory(EngineData::Get().state.openProjectRoot)) {
                     //project already exists
                 }
             }
@@ -110,6 +110,10 @@ struct ImGuiRegistryPanel {
         ImGui::Begin("Registry");
         if (ImGui::CollapsingHeader("GameObjects")) {
             ImGuiIO& io = ImGui::GetIO();
+            
+            if (ImGui::Button("Create GameObject")) {
+                LOG_DEBUG("Creating new gameobject (WIP)");
+            }
             for (const auto &entry : Registry::Get().entities) {
                 std::string displayName = Registry::GetComponent<Identifier>(entry.first).displayName;
                 std::string id = Registry::GetComponent<Identifier>(entry.first).id;
@@ -176,7 +180,8 @@ struct ImGuiStatsPanel {
         ImGui::Begin("Statistics");
         ImGui::Text("Mouse Position {%0.4f %0.4f}", Input.mouse.x, Input.mouse.y);
         ImGui::Text("Viewport Size {%d %d}", Renderer2D::Get().frameBuffer.GetWidth(), Renderer2D::Get().frameBuffer.GetHeight());
-        ImGui::Text("Current Project {%s}", EngineData::Get().currentDir.c_str());
+        ImGui::Text("Current Directory {%s}", EngineData::Get().state.currentDir.c_str());
+        ImGui::Text("Project Root {%s}", EngineData::Get().state.openProjectRoot.c_str());
         ImGui::End();
     }
 };
@@ -430,7 +435,7 @@ struct ImGuiFileManagerPanel {
     void Draw() {
         ImGui::Begin("File Manager");
       
-        if (EngineData::Get().rootDir.empty()) {
+        if (EngineData::Get().state.openProjectRoot.empty()) {
             float w = ImGui::GetWindowWidth();
             float h = ImGui::GetWindowHeight();
             ImGui::SetCursorPos({w/2 - 20, h/2});
@@ -439,9 +444,9 @@ struct ImGuiFileManagerPanel {
             return;
         }
 
-        if (EngineData::Get().currentDir != EngineData::Get().rootDir) {
+        if (EngineData::Get().state.currentDir != EngineData::Get().state.openProjectRoot) {
             if (ImGui::Button("<-")) {
-                EngineData::Get().currentDir = EngineData::Get().currentDir.parent_path();
+                EngineData::Get().state.currentDir = EngineData::Get().state.currentDir.parent_path();
             }
         }
 
@@ -451,9 +456,9 @@ struct ImGuiFileManagerPanel {
         
         ImGui::TableNextColumn();
         int id = 0;
-        for (auto& p : std::filesystem::directory_iterator(EngineData::Get().currentDir)) {
+        for (auto& p : std::filesystem::directory_iterator(EngineData::Get().state.currentDir)) {
             const auto& path = p.path();
-            auto relPath = std::filesystem::relative(path, EngineData::Get().rootDir);
+            auto relPath = std::filesystem::relative(path, EngineData::Get().state.openProjectRoot);
             std::string filenameStr = relPath.filename().string();
             
             Texture* folderTex = ResourceManager::GetEngineResource<Texture>("folder_icon");
@@ -463,7 +468,7 @@ struct ImGuiFileManagerPanel {
             if (p.is_directory()) {
                 if (ImGui::ImageButton((void*)(intptr_t) folderTex->textureHandle, ImVec2{128, 128}, ImVec2{0, 1}, ImVec2{1, 0})) {
                     LOG_DEBUG("Move directories");
-                    EngineData::Get().currentDir /= path.filename();
+                    EngineData::Get().state.currentDir /= path.filename();
                 }
                 ImGui::Text("%s", filenameStr.c_str());
             }

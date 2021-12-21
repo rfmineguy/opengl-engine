@@ -20,8 +20,8 @@ void Firefly::Engine::Create() {
     EngineData::Deserialize();  //load saved engine data
     ResourceManager::LoadEngineResource<Texture>("folder_icon", "res/engine_files/file_browser/folder.png");
     ResourceManager::LoadEngineResource<Texture>("file_icon", "res/engine_files/file_browser/txt_file.png");
-    ResourceManager::LoadProjectResource<Shader>("test_shader", "/home/rfmineguy/Documents/FireflyEngineProjects/shaders/experimental/");
-    ResourceManager::LoadProjectResource<TextureAtlas>("spritesheet", "/home/rfmineguy/Documents/FireflyEngineProjects/textures/testing.atlas");
+    ResourceManager::LoadProjectResource<Shader>("test_shader", "/shaders/experimental/");
+    ResourceManager::LoadProjectResource<TextureAtlas>("spritesheet", "/textures/testing.atlas");
     ResourceManager::PrintContents();
 
     Renderer2D::Init();
@@ -39,13 +39,6 @@ void Firefly::Engine::Create() {
                 Registry::AddComponent<Renderable>(object, "spritesheet", "player");
         }
     }
-    Test t;
-    t.x = 34;
-    strcpy(t.cstr, "Hello World");
-    Serializer::SerializeBin<Test>("res/test.bin", t);
-    t = Serializer::DeSerializeBin<Test>("res/test.bin");
-    LOG_INFO("{}{}", t.x, t.cstr);
-    LOG_INFO("End create");
 }
 
 void Firefly::Engine::Destroy() {

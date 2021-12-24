@@ -1,4 +1,4 @@
-#include "../registry.h"
+//#include "../registry.h"
 #include "../renderer/renderer2D.h"
 #include "../util/resourceManager.h"
 #include "../window/inputData.h"
@@ -8,6 +8,7 @@
 #include "imgui_file_dialog/ImGuiFileDialog.h"
 
 #include "../util/fileUtil.h"
+#include "../gameobject/entity.h"
 
 class ImGuiLayer;
 
@@ -114,12 +115,14 @@ struct ImGuiRegistryPanel {
             if (ImGui::Button("Create GameObject")) {
                 LOG_DEBUG("Creating new gameobject (WIP)");
             }
+            /*
             for (const auto &entry : Registry::Get().entities) {
                 std::string displayName = Registry::GetComponent<Identifier>(entry.first).displayName;
                 std::string id = Registry::GetComponent<Identifier>(entry.first).id;
                 if (ImGui::Selectable(displayName.c_str())) 
                     EngineData::SetSelected(SelectionType::GAMEOBJECT, id);
             }
+            */
         }
         ImGui::End();
     }
@@ -207,10 +210,10 @@ struct ImGuiPropertiesPanel {
         }
         if (EngineData::Get().selectionType == SelectionType::GAMEOBJECT) {
             ImGui::Text("GameObject");
-            GameObject& object = Registry::GetRegisteredGameObject(EngineData::Get().selectionId);
+            Entity* e = EngineData::CurrentScene().FindEntity(EngineData::Get().selectionId);
            
-            DisplayComponents(object);
-            AddComponentWigdet(object);
+            DisplayComponents(e);
+            AddComponentWigdet(e);
         }
         else if (EngineData::Get().selectionType == SelectionType::SIGNAL) {
             ImGui::Text("Signal");
@@ -259,70 +262,78 @@ struct ImGuiPropertiesPanel {
         }
         ImGui::End();
     }
-
-    void DisplayComponents(GameObject& object) {
-            if (Registry::HasComponent<Identifier>(object)) {
+    
+    void DisplayComponents(Entity* entity) {
+            if (entity->HasComponent<Identifier>()) {
                 if (ImGui::TreeNode("Identifier")) {
                     CallbackData data;
-                    data.registryId = &Registry::GetComponent<Identifier>(object).id;
-                    data.displayName = &Registry::GetComponent<Identifier>(object).displayName;
+                    data.registryId = &entity->GetComponent<Identifier>().id;
+                    data.displayName = &entity->GetComponent<Identifier>().displayName;
 
                     ImGui::Text("ID: %s", data.registryId->c_str());
                     ImGui::InputText("Display Name: ", &*data.displayName, ImGuiInputTextFlags_CallbackEdit, PropertiesCallbacks::DisplayNameChanged, (void*)&data);
                     ImGui::TreePop();
                 }
             }
-            if (Registry::HasComponent<Transform>(object)) {
+            if (entity->HasComponent<Transform>()) {
                 if (ImGui::TreeNode("Transform")) {
-                    Transform& t = Registry::GetComponent<Transform>(object);
+                    Transform& t = entity->GetComponent<Transform>();
                     ImGui::DragFloat2("Position", &t.position.x);
                     ImGui::DragFloat2("Scale", &t.scale.x);
                     ImGui::DragFloat("Rotation", &t.rotation);
                     ImGui::TreePop();
                 }
             }
-            if (Registry::HasComponent<Renderable>(object)) {
+            if (entity->HasComponent<Renderable>()) {
                 if (ImGui::TreeNode("Renderable")) {
                     CallbackData data;
-                    Renderable& r = Registry::GetComponent<Renderable>(object);
+                    Renderable& r = entity->GetComponent<Renderable>();
                     TextureAtlas* atlas = ResourceManager::GetProjectResource<TextureAtlas>(r.resourceId);
                     ImGui::Image((void*)(intptr_t) atlas->textureHandle, ImVec2{64, 64}, ImVec2{0, 1}, ImVec2{1, 0});
                     ImGui::TreePop();
                 }
             }
-            if (Registry::HasComponent<AnimatedRenderable>(object)) {
+            if (entity->HasComponent<AnimatedRenderable>()) {
                 if (ImGui::TreeNode("Animated Renderable")) {
 
                     ImGui::TreePop();
                 }
             }
-            if (Registry::HasComponent<Script>(object)) {
+            if (entity->HasComponent<Script>()) {
 
+            }
+            if (entity->HasComponent<SpriteRenderer>()) {
+                if (ImGui::TreeNode("SpriteRenderer")) {
+                    SpriteRenderer& r = entity->GetComponent<SpriteRenderer>();
+                    ImGui::Text("Source Resource ID %s", r.resourceId.c_str());
+                    ImGui::Text("AtlasSubRegionName %s", r.atlasSubRegionName.c_str());
+                    ImGui::TreePop();
+                }
             }
     }
 
-    void AddComponentWigdet(GameObject& object) {
+    void AddComponentWigdet(Entity* entity) {
         if (ImGui::Button("Add Component")) {
-                ImGui::OpenPopup("add_component_popup");
+            ImGui::OpenPopup("add_component_popup");
+        }
+        if (ImGui::BeginPopup("add_component_popup")) {
+            if (!entity->HasComponent<Identifier>() && ImGui::Button("Identifier")) {
+                entity->AddComponent<Identifier>("");
             }
-            if (ImGui::BeginPopup("add_component_popup")) {
-                if (!Registry::HasComponent<Identifier>(object) && ImGui::Button("Identifier")) {
-                    Registry::AddComponent<Identifier>(object, "");
-                }
-                if (!Registry::HasComponent<Transform>(object) && ImGui::Button("Transform")) {
-                    Registry::AddComponent<Transform>(object, 0, 0, 32, 32, 0);
-                }
-                if (!Registry::HasComponent<Renderable>(object) && ImGui::Button("Renderable")) {
+            if (!entity->HasComponent<Transform>() && ImGui::Button("Transform")) {
+                entity->AddComponent<Transform>(0, 0, 32, 32, 0);
+            }
+            if (!entity->HasComponent<Renderable>() && ImGui::Button("Renderable")) {
                 
-                }
-                if (!Registry::HasComponent<AnimatedRenderable>(object) && ImGui::Button("AnimatedRenderable")) {
-                    Registry::AddComponent<AnimatedRenderable>(object);
-                }
-                if (!Registry::HasComponent<Script>(object) && ImGui::Button("Script")) {
-                    Registry::AddComponent<Script>(object);
-                }
-                ImGui::EndPopup();
             }
+            if (!entity->HasComponent<AnimatedRenderable>() && ImGui::Button("AnimatedRenderable")) {
+                entity->AddComponent<AnimatedRenderable>();
+            }
+            if (!entity->HasComponent<Script>() && ImGui::Button("Script")) {
+                entity->AddComponent<Script>();
+            }
+            ImGui::EndPopup();
+        }
     }
 };
 struct ImGuiViewportPanel {
@@ -492,7 +503,16 @@ struct ImGuiFileManagerPanel {
 struct ImGuiSceneHeirarchy {
     void Draw() {
         ImGui::Begin("Scene Heirarchy");
-
+        if (ImGui::CollapsingHeader("Entities")) {
+            for (auto const& entity : EngineData::CurrentScene().uEntities) {
+                if (entity.second->HasComponent<Identifier>()) {
+                    Identifier &id = entity.second->GetComponent<Identifier>();
+                    if (ImGui::Selectable(id.displayName.c_str())) {
+                        EngineData::SetSelected(SelectionType::GAMEOBJECT, id.id);
+                    }
+                }
+            }
+        }
         ImGui::End();
     }
 };
@@ -596,12 +616,7 @@ private:
         
         if (EngineData::Preferences().isPropertiesPanelEnabled)
             Get().propertiesPanel.Draw();
-        
-        /*
-        if (EngineData::Get().isConsolePanelEnabled)
-            Get().consolePanel.Draw();
-        */
-
+       
         if (EngineData::Preferences().isScriptEditorPanelEnabled)
             Get().scriptEditor.Draw();
         

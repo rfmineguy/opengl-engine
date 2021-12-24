@@ -227,6 +227,7 @@ private:
     std::unordered_map<std::string, std::unique_ptr<Texture>> uEngineTextures;    //https://duckduckgo.com/
     std::unordered_map<std::string, std::unique_ptr<TextureAtlas>> uEngineTextureAtlases;
     std::unordered_map<std::string, std::unique_ptr<Shader>> uEngineShaders;
+
 friend class ImGuiResourcesPanel;
 friend class ImGuiFileManagerPanel;
 friend class Engine;

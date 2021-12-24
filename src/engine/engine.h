@@ -1,5 +1,5 @@
 #include "../corepch.h"
-#include "../registry.h"
+#include "../gameobject/entity.h"
 #include "imguilayer.h"
 #include "../util/resourceManager.h"
 #include "../renderer/orthoCamera.h"
@@ -21,6 +21,6 @@ public:
 
 private:
     OrthoCamera camera;
+    Scene currentScene;
 };
 }
-

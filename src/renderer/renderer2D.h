@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../registry.h"
+//#include "../registry.h"
 #include "../render_data/shader.h"
 #include "../render_data/geometry.h"
 #include "../components/components.h"
@@ -33,8 +33,12 @@ public:
     }
     
     //draw gameobject
-    static void Draw(GameObject& object, OrthoCamera& camera) {
-        Get().DrawImpl(object, camera);
+    static void Draw(Entity& entity, OrthoCamera& camera) {
+        Get().DrawImpl(entity, camera);
+    }
+
+    static void DrawQuad(Transform& t, Renderable& r, OrthoCamera& camera) {
+        Get().DrawQuadImpl(t, r, camera);
     }
     
     //draw everything drawable currently in the registry
@@ -43,7 +47,52 @@ public:
     }
 
 private:
-    void DrawImpl(GameObject& object, OrthoCamera& camera) {
+    void DrawQuadImpl(Transform& t, Renderable& r, OrthoCamera& camera) {
+        Get().shader->Bind();
+        Get().shader->Set4fv("view", camera.GetView());
+        Get().shader->Set4fv("projection", camera.GetProj());
+        
+        Get().textureAtlas->Unbind();
+        Get().textureAtlas = ResourceManager::GetProjectResource<TextureAtlas>(r.resourceId);
+        Get().textureAtlas->Bind();
+
+        if (r.region.empty) {
+            r.region = Get().textureAtlas->GetRegion(r.atlasSubRegionName);
+            r.region.empty = false;
+        }
+
+        //  CALCULATE MODELMATRIX
+        //
+        glm::mat4 model = glm::mat4(1.0);
+        model = glm::translate(model, t.position);
+        model = glm::translate(model, glm::vec3(0.5f, 0.5f, 0.0f));
+        model = glm::scale(model, t.scale);
+        model = glm::rotate(model, glm::radians(t.rotation), glm::vec3(0, 0, 1));
+        model = glm::translate(model, -glm::vec3(0.5f, 0.5f, 0.0f));
+
+        //texturing
+        glm::vec2 texCoord[4];
+        texCoord[1] = r.region.topright; //topright
+        texCoord[0] = r.region.bottomright; //bottomright
+        texCoord[3] = r.region.bottomleft; //bottomleft
+        texCoord[2] = r.region.topleft; //topleft
+
+        //glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*) 0);
+        //glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesSize, quad.mIndices.data(), GL_STATIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, Get().textureVbo);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(texCoord[0]) * 4, &texCoord[0], GL_STATIC_DRAW);
+        //LOG_DEBUG("Set the texture coords");
+
+        //
+        //  DRAW VAO
+        //
+        Get().shader->Set4fv("model", model);
+        //LOG_DEBUG("Set the model matrix");
+        glDrawElements(GL_TRIANGLES, Get().quad.mIndices.size(), GL_UNSIGNED_INT, 0);
+        Get().drawCalls++;
+    }
+    
+    void DrawImpl(Entity& entity, OrthoCamera& camera) {
         if (!Get().isInitialized) {
             LOG_ERROR("Renderer2D not initialized! Initialize it with Renderer2D::Init()");
             return;
@@ -59,7 +108,8 @@ private:
         Get().shader->Set4fv("projection", camera.GetProj());
 
         //Check if gameobject has the basic components required to draw it
-        if (Registry::HasComponent<Renderable>(object) && 
+        /*
+        if (Registry::HasComponent<Renderable>(entity) && 
             Registry::HasComponent<Transform>(object))
         {
             //LOG_INFO("Drawing object {}", Registry::GetComponent<Identifier>(object).id);
@@ -105,16 +155,19 @@ private:
             glDrawElements(GL_TRIANGLES, Get().quad.mIndices.size(), GL_UNSIGNED_INT, 0);
             Get().drawCalls++;
         }
+        */
 
     }
     void DrawRegistryImpl(OrthoCamera& camera) {
         //LOG_DEBUG("Bind framebuffer");
+        /*
         frameBuffer.Bind();
         glClearColor(0.6f, 0.6f, 0.6f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         for (const auto &entry: Registry::Get().entities) {
             Draw(*entry.second, camera);
         }
+        */
         frameBuffer.Unbind();
         //LOG_DEBUG("Unbind framebuffer");
     }

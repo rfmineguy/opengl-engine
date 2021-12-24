@@ -5,7 +5,7 @@
 #include "../render_data/shader.h"
 #include "../render_data/textureAtlas.h"
 #include "orthoCamera.h"
-#include "../registry.h"
+//#include "../registry.h"
 
 #include "entt/entt.hpp"
 

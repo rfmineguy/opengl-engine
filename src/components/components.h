@@ -3,6 +3,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "../render_data/region.h"
 #include "../render_data/textureAtlas.h"
+#include "entt/entity/entity.hpp"
 
 /* Transform component
  *   position, scale, rotation
@@ -32,10 +33,6 @@ struct Transform {
     }
 };
 
-struct Camera {
-    
-};
-
 /* Identifier component
  *  gives a gameobject a display name basically 
  */
@@ -44,7 +41,7 @@ struct Identifier {
     std::string displayName;
 };
 
-/* Renderable
+/* Renderable component
  *   gives the ability to render a GameObject with a texture
  */
 struct Renderable {
@@ -76,6 +73,27 @@ struct AnimatedRenderable : Renderable {
     }
 };
 
+/*  Script component
+ *    * will be used as the root component/object for programmable gameobject
+ */
 struct Script {
     std::string luaScriptPath;
+};
+
+struct SpriteRenderer {
+    std::string resourceId;
+    std::string atlasSubRegionName;
+        
+    void Draw() {
+    }
+};
+
+
+struct Parent {
+    int parentId;
+    bool isParent;
+};
+
+struct Children {
+    std::vector<int> childrenIds;
 };

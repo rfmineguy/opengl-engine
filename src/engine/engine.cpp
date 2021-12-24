@@ -1,20 +1,17 @@
 #include "engine.h"
 #include "../serializer/serializer.h"
+#include <string>
 
-struct Test {
-    int x = 34;
-    char cstr[14] = "Hello World";
-};
-
-Firefly::Engine::Engine() {
+namespace Firefly {
+Engine::Engine() {
     Create();
 }
 
-Firefly::Engine::~Engine() {
+Engine::~Engine() {
     Renderer2D::DeInit();
 }
 
-void Firefly::Engine::Create() {
+void Engine::Create() {
     //Load last opened project or none if no cached project was found
 
     EngineData::Deserialize();  //load saved engine data
@@ -29,14 +26,10 @@ void Firefly::Engine::Create() {
   
     for (int i = 0; i < 10; i++) {
         for (int j = 0; j < 10; j++) {
-            std::string id = "object" + std::to_string(i) + std::to_string(j);
-            GameObject& object = Registry::RegisterGameObject(id);
-            Registry::AddComponent<Transform>(object, i * 32, j * 32, 32, 32, 0);
-            Registry::AddComponent<Identifier>(object, id, id);
-            if ((i + j) % 2 == 0)
-                Registry::AddComponent<Renderable>(object, "spritesheet", "hi");
-            else
-                Registry::AddComponent<Renderable>(object, "spritesheet", "player");
+            std::string id = "entity_" + std::to_string(i) + std::to_string(j);
+            EngineData::CurrentScene().CreateEntity(id);
+
+            Entity* e = EngineData::CurrentScene().FindEntity(id);
         }
     }
 }
@@ -48,7 +41,10 @@ void Firefly::Engine::Destroy() {
 void Firefly::Engine::Update(float dt) {
     camera.Movement();
 
+    //LOG_INFO("{}", EngineData::CurrentScene().reg.size());
+
     glm::vec2 worldMouse = camera.ScreenToWorld(Input.mouse);
+    /*
     Registry::GetComponent<Transform>("object00").position = glm::vec3(worldMouse.x, worldMouse.y, 0);
     if (Input.keys[GLFW_KEY_E]) {
         Registry::GetComponent<Transform>("object00").rotation += 2;
@@ -59,13 +55,15 @@ void Firefly::Engine::Update(float dt) {
     if (Input.scrollYOffset != 0) {
         Registry::GetComponent<Transform>("object00").scale += (glm::vec3(Input.scrollYOffset, Input.scrollYOffset, 0) * glm::vec3(5));
     }
+    */
 }
 
 void Firefly::Engine::Draw() {
     Firefly::ImGuiLayer::Draw();
-    Renderer2D::DrawRegistry(camera);
+    //Renderer2D::DrawRegistry(camera);
 }
 
 void Firefly::Engine::Resize(int width, int height) {
     camera.UpdateProj(width, height);
+}
 }

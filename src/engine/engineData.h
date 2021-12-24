@@ -3,6 +3,7 @@
 #include <filesystem>
 #include "../serializer/serializable.h"
 #include "../serializer/json-serializable.h"
+#include "scene.h"
 
 namespace Firefly {
 enum class SelectionType {
@@ -83,6 +84,10 @@ public:
         return Get().state;
     }
 
+    static Scene& CurrentScene() {
+        return Get().currentScene;
+    }
+
     static void SetSelected(SelectionType type, std::string id) {
         Get().selectionType = type;
         Get().selectionId = id;
@@ -118,6 +123,7 @@ private:
 public:
     EnginePreferences preferences;
     EngineState state;
+    Scene currentScene;
 
 friend class ImGuiLayer;
 friend class ImGuiPropertiesPanel;
@@ -126,5 +132,6 @@ friend class ImGuiScriptEditorPanel;
 friend class ImGuiFileManagerPanel;
 friend class ImGuiMenuPanel;
 friend class ImGuiStatsPanel;
+friend class Engine;
 };
 }

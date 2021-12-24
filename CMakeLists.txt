@@ -28,6 +28,7 @@ set(SOURCES
     src/renderer/framebuffer.cpp
 
     src/engine/imguilayer.h
+    src/engine/scene.cpp
     
     src/engine/engine.cpp
     src/serializer/serializer.h

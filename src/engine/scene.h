@@ -30,6 +30,7 @@ private:
 friend class Entity;
 friend class Engine;
 friend class ImGuiSceneHeirarchy;
+friend class ImGuiViewportPanel;
 };
 
 }

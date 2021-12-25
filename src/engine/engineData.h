@@ -7,7 +7,7 @@
 
 namespace Firefly {
 enum class SelectionType {
-    NONE, SIGNAL, GAMEOBJECT, TEXTURE, TEXTURE_ATLAS, SHADER, ENGINE_TEXTURE, ENGINE_TEXTURE_ATLAS, ENGINE_SHADER
+    NONE, ENTITY, SIGNAL, GAMEOBJECT, TEXTURE, TEXTURE_ATLAS, SHADER, ENGINE_TEXTURE, ENGINE_TEXTURE_ATLAS, ENGINE_SHADER
 };
 
 //stores the user's preferences
@@ -122,6 +122,7 @@ public:
 private:
     SelectionType selectionType;
     std::string selectionId;
+    Scene currentScene;
 
 private:
     char scriptText[1024 * 16] = "";
@@ -129,7 +130,6 @@ private:
 public:
     EnginePreferences preferences;
     EngineState state;
-    Scene currentScene;
 
 friend class ImGuiLayer;
 friend class ImGuiPropertiesPanel;
@@ -138,6 +138,7 @@ friend class ImGuiScriptEditorPanel;
 friend class ImGuiFileManagerPanel;
 friend class ImGuiMenuPanel;
 friend class ImGuiStatsPanel;
+friend class ImGuiSceneHeirarchy;
 friend class Engine;
 };
 }

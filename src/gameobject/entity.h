@@ -2,19 +2,20 @@
 #include <entt/entt.hpp>
 #include "../corepch.h"
 #include "../engine/scene.h"
+#include "../components/components.h"
 
 namespace Firefly {
 class Entity {
 public:
-    Entity(Scene* scene)
-    :mScene(scene) {
+    Entity(Scene* scene, const std::string& id)
+    :mScene(scene), id(id) {
         handle = scene->reg.create();
     }
 
     template <typename T>
     T& GetComponent() {
         if (!HasComponent<T>()) {
-            LOG_CRITICAL("Component not found");
+            LOG_CRITICAL("Component not found {}", typeid(T).name());
         }
         return mScene->reg.get<T>(handle);
     }
@@ -34,6 +35,34 @@ public:
         mScene->reg.remove<T>(handle);
     }
 
+    void AddChild(const std::string& _id) {
+        this->GetComponent<Relationship>().isParent = true;
+        this->GetComponent<Relationship>().children.push_back(_id);
+        mScene->FindEntity(_id)->GetComponent<Relationship>().isChild = true;
+        mScene->FindEntity(_id)->GetComponent<Relationship>().parent = this->id;
+    }
+
+    void AddChild(Entity* entity) {
+        AddChild(entity->id);
+    }
+
+    std::vector<std::string> GetChildren() {
+        if (this->GetComponent<Relationship>().isParent) {
+            return this->GetComponent<Relationship>().children;
+        }
+        return {};
+    }
+
+    bool HasChildren() {
+        return GetChildren().size() > 0;
+    }
+
+    std::string& GetParent() {
+        return this->GetComponent<Relationship>().parent;
+    }
+
+    void SetDirty() { isDirty = true; }
+
 	operator bool() const { return handle != entt::null; }
 	operator entt::entity() const { return handle; }
 	operator uint32_t() const { return (uint32_t)handle; }
@@ -48,6 +77,8 @@ public:
 		return !(*this == other);
 	}
 private:
+    bool isDirty = false;
+    std::string id;
     entt::entity handle {entt::null};
     Scene* mScene = nullptr;
 };

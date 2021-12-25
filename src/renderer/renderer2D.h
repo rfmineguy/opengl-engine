@@ -8,6 +8,7 @@
 #include "../util/resourceManager.h"
 #include "../renderer/orthoCamera.h"
 #include "../renderer/framebuffer.h"
+#include "../gameobject/entity.h"
 
 //Renderer2D is a friend class of Registry
 namespace Firefly {
@@ -31,8 +32,8 @@ public:
     static void ToggleWireframe() {
         Get().wireframe = !Get().wireframe;
     }
-    
-    //draw gameobject
+   
+    //draw entity 
     static void Draw(Entity& entity, OrthoCamera& camera) {
         Get().DrawImpl(entity, camera);
     }
@@ -107,14 +108,9 @@ private:
         Get().shader->Set4fv("view", camera.GetView());
         Get().shader->Set4fv("projection", camera.GetProj());
 
-        //Check if gameobject has the basic components required to draw it
-        /*
-        if (Registry::HasComponent<Renderable>(entity) && 
-            Registry::HasComponent<Transform>(object))
-        {
-            //LOG_INFO("Drawing object {}", Registry::GetComponent<Identifier>(object).id);
-            Transform& t = Registry::GetComponent<Transform>(object);
-            Renderable& r = Registry::GetComponent<Renderable>(object);
+        if (entity.HasComponent<Renderable>() && entity.HasComponent<Transform>()) {
+            Transform& t = entity.GetComponent<Transform>();
+            Renderable& r = entity.GetComponent<Renderable>();
 
             Get().textureAtlas->Unbind();
             Get().textureAtlas = ResourceManager::GetProjectResource<TextureAtlas>(r.resourceId);
@@ -155,8 +151,6 @@ private:
             glDrawElements(GL_TRIANGLES, Get().quad.mIndices.size(), GL_UNSIGNED_INT, 0);
             Get().drawCalls++;
         }
-        */
-
     }
     void DrawRegistryImpl(OrthoCamera& camera) {
         //LOG_DEBUG("Bind framebuffer");
@@ -167,8 +161,8 @@ private:
         for (const auto &entry: Registry::Get().entities) {
             Draw(*entry.second, camera);
         }
-        */
         frameBuffer.Unbind();
+        */
         //LOG_DEBUG("Unbind framebuffer");
     }
 

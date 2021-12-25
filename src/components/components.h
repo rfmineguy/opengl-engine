@@ -83,17 +83,13 @@ struct Script {
 struct SpriteRenderer {
     std::string resourceId;
     std::string atlasSubRegionName;
-        
+    
     void Draw() {
     }
 };
 
-
-struct Parent {
-    int parentId;
-    bool isParent;
-};
-
-struct Children {
-    std::vector<int> childrenIds;
+struct Relationship {
+    bool isParent, isChild;
+    std::string parent;
+    std::vector<std::string> children;
 };

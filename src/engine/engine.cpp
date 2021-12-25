@@ -24,13 +24,25 @@ void Engine::Create() {
     Renderer2D::Init();
     ImGuiLayer::Init();
   
-    for (int i = 0; i < 10; i++) {
-        for (int j = 0; j < 10; j++) {
+    for (int i = 0; i < 2; i++) {
+        for (int j = 0; j < 2; j++) {
             std::string id = "entity_" + std::to_string(i) + std::to_string(j);
             EngineData::CurrentScene().CreateEntity(id);
 
             Entity* e = EngineData::CurrentScene().FindEntity(id);
+            e->GetComponent<Transform>().position.x = i * 16;
+            e->GetComponent<Transform>().position.y = j * 16;
         }
+    }
+
+    Entity* e = EngineData::CurrentScene().FindEntity("entity_00");
+    Entity* e1 = EngineData::CurrentScene().FindEntity("entity_01");
+    Entity* e2 = EngineData::CurrentScene().FindEntity("entity_11");
+    e->AddChild(e1);
+    e->AddChild(e2);
+
+    for (std::string& s : e->GetChildren()) {
+        LOG_INFO("{}", s.c_str());
     }
 }
 
@@ -39,31 +51,24 @@ void Firefly::Engine::Destroy() {
 }
 
 void Firefly::Engine::Update(float dt) {
-    camera.Movement();
+    EngineData::CurrentScene().Update(dt);
 
     //LOG_INFO("{}", EngineData::CurrentScene().reg.size());
 
-    glm::vec2 worldMouse = camera.ScreenToWorld(Input.mouse);
-    /*
-    Registry::GetComponent<Transform>("object00").position = glm::vec3(worldMouse.x, worldMouse.y, 0);
-    if (Input.keys[GLFW_KEY_E]) {
-        Registry::GetComponent<Transform>("object00").rotation += 2;
+    glm::vec2 worldMouse = EngineData::CurrentScene().cam.ScreenToWorld(Input.mouse);
+
+    Entity* e = EngineData::CurrentScene().FindEntity("entity_00");
+    if (e->HasComponent<Transform>()) {
+        e->GetComponent<Transform>().position = glm::vec3(worldMouse.x, worldMouse.y, 0);
     }
-    if (Input.keys[GLFW_KEY_Q]) {
-        Registry::GetComponent<Transform>("object00").rotation -= 2;
-    }
-    if (Input.scrollYOffset != 0) {
-        Registry::GetComponent<Transform>("object00").scale += (glm::vec3(Input.scrollYOffset, Input.scrollYOffset, 0) * glm::vec3(5));
-    }
-    */
 }
 
 void Firefly::Engine::Draw() {
     Firefly::ImGuiLayer::Draw();
-    //Renderer2D::DrawRegistry(camera);
+    EngineData::CurrentScene().Draw();
 }
 
 void Firefly::Engine::Resize(int width, int height) {
-    camera.UpdateProj(width, height);
+    EngineData::CurrentScene().cam.UpdateProj(width, height);
 }
 }

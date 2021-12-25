@@ -208,6 +208,15 @@ struct ImGuiPropertiesPanel {
             ImGui::End();
             return;
         }
+        
+        if (EngineData::Get().selectionType == SelectionType::ENTITY) {
+            ImGui::Text("Entity");
+            Entity* e = EngineData::CurrentScene().FindEntity(EngineData::Get().selectionId);
+           
+            //DisplayComponents(e);
+            //AddComponentWigdet(e);
+        }
+
         if (EngineData::Get().selectionType == SelectionType::GAMEOBJECT) {
             ImGui::Text("GameObject");
             Entity* e = EngineData::CurrentScene().FindEntity(EngineData::Get().selectionId);
@@ -358,11 +367,11 @@ struct ImGuiViewportPanel {
         ImGuiIO& io = ImGui::GetIO();
 
         //LOG_DEBUG("Drawing framebuffer");
-        GLuint texId = Renderer2D::Get().frameBuffer.GetColorAttachment();
+        GLuint texId = EngineData::CurrentScene().frameBuffer.GetColorAttachment();
         ImGui::Image((void*)(intptr_t) texId, viewportSize);
 
         if (lastViewportSize.x != viewportSize.x || lastViewportSize.y != viewportSize.y) {
-            Renderer2D::Get().frameBuffer.Resize(viewportSize.x, viewportSize.y);
+            EngineData::CurrentScene().OnResize(viewportSize.x, viewportSize.y);
             lastViewportSize = { viewportSize.x, viewportSize.y };
         }
         ImGui::End();
@@ -501,19 +510,49 @@ struct ImGuiFileManagerPanel {
     }  
 };
 struct ImGuiSceneHeirarchy {
+    std::vector<std::string> drawnNodes;
     void Draw() {
         ImGui::Begin("Scene Heirarchy");
+        Scene* scene = &EngineData::CurrentScene();
         if (ImGui::CollapsingHeader("Entities")) {
-            for (auto const& entity : EngineData::CurrentScene().uEntities) {
-                if (entity.second->HasComponent<Identifier>()) {
-                    Identifier &id = entity.second->GetComponent<Identifier>();
-                    if (ImGui::Selectable(id.displayName.c_str())) {
-                        EngineData::SetSelected(SelectionType::GAMEOBJECT, id.id);
-                    }
-                }
-            }
+            DrawHeirarchy(scene->root.get());
+            drawnNodes.clear();
         }
         ImGui::End();
+    }
+
+    void DrawHeirarchy(Entity* entity) {
+        Scene* scene = &EngineData::CurrentScene();
+        ImGuiTreeNodeFlags flags = (EngineData::Get().selectionId == entity->GetComponent<Identifier>().id ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow;
+        flags |= ImGuiTreeNodeFlags_SpanAvailWidth;
+        auto& id = entity->GetComponent<Identifier>().id;
+        
+        if (std::find(drawnNodes.begin(), drawnNodes.end(), id) == drawnNodes.end()) {
+            bool opened = DrawNode(entity, id);
+            if (opened) {
+                if (entity->HasChildren()) {
+                    for (int i = 0; i < entity->GetChildren().size(); i++) {
+                        DrawHeirarchy(scene->FindEntity(entity->GetChildren()[i]));
+                    }
+                }
+                ImGui::TreePop();
+            }
+            drawnNodes.push_back(id);
+        }
+
+    }
+
+    bool DrawNode(Entity* entity, const std::string& id) {
+        ImGuiTreeNodeFlags flags = (EngineData::Get().selectionId == id ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow;
+        bool opened = ImGui::TreeNodeEx(id.c_str(), flags);
+        if (ImGui::IsItemClicked()) {
+            LOG_DEBUG("Clicked {}", id.c_str());
+            if (id != "root") {
+                EngineData::Get().selectionId = id;
+                EngineData::Get().selectionType = SelectionType::ENTITY;
+            }
+        }
+        return opened;
     }
 };
 struct ImGuiPreferencesPanel {

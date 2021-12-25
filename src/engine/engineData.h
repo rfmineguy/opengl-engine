@@ -105,7 +105,13 @@ public:
 
     static void Deserialize() {
         LOG_INFO("Deserializing engine data");
-        std::fstream fs("res/engine_files/engine.json", std::ios::in);
+        std::fstream fs("res/engine_files/engine.json", std::ios::in | std::ios::out);
+        if (fs.fail()) {
+            LOG_CRITICAL("Failed to open engine.json");
+            Serialize();
+            fs.close();
+        }
+        fs.open("res/engine_files/engine.json", std::ios::in);
         json root;
         fs >> root;
         fs.close();

@@ -79,6 +79,7 @@ struct ImGuiMenuPanel {
             //draw file dialog
             if (ImGui::BeginMenu("Window")) {
                 ImGui::Checkbox("ImGuiDemoWindow", &EngineData::Preferences().isDemoWindowEnabled);
+                ImGui::Checkbox("Preferences", &EngineData::Preferences().isPreferencesWindowEnabled);
                 ImGui::EndMenu();
             }
             ImGui::EndMenuBar();
@@ -384,60 +385,6 @@ struct ImGuiViewportPanel {
         ImGui::PopStyleVar();
     }
 };
-struct ImGuiConsolePanel {
-    ImGuiTextBuffer Buf;
-    ImGuiTextFilter Filter;
-    ImVector<int>   LineOffsets;
-    bool            AutoScroll;
-
-    bool showDebugMessage;
-    bool showInfoMessage;
-    bool showWarnMessage;
-    bool showErrorMessage;
-    bool showCriticalMessage;
-
-    ImGuiConsolePanel() {
-        showDebugMessage = true;
-        showInfoMessage = true;
-        showWarnMessage = true;
-        showErrorMessage = true;
-        showCriticalMessage = true;
-    }
-
-    void Clear() {
-        Buf.clear();
-        LineOffsets.clear();
-        LineOffsets.push_back(0);
-    }
-    void AddLog(const char* msg) {
-        
-    }
-    void Draw() {
-        ImGui::Begin("Console");
-
-        if (ImGui::BeginPopup("Options")) {
-            ImGui::Checkbox("Debug Logging", &showDebugMessage);
-            ImGui::Checkbox("Info Logging", &showInfoMessage);
-            ImGui::Checkbox("Warn Logging", &showWarnMessage);
-            ImGui::Checkbox("Error Logging", &showErrorMessage);
-            ImGui::Checkbox("Critical Logging", &showCriticalMessage);
-            
-            ImGui::EndPopup();
-        }
-        if (ImGui::Button("Options"))
-            ImGui::OpenPopup("Options");
-
-        ImGui::SameLine();
-        bool clearLog = ImGui::Button("Clear");
-        ImGui::SameLine();
-        bool copy = ImGui::Button("Copy");
-        ImGui::SameLine();
-        ImGui::Separator();
-        ImGui::BeginChild("scrolling", ImVec2{0, 0}, false, ImGuiWindowFlags_HorizontalScrollbar);
-
-        ImGui::End();
-    }
-};
 struct ImGuiScriptEditorPanel {
     void Draw() {
         static ImGuiInputTextFlags flags = ImGuiInputTextFlags_AllowTabInput;
@@ -562,7 +509,36 @@ struct ImGuiSceneHeirarchy {
 };
 struct ImGuiPreferencesPanel {
     void Draw() {
+        ImGui::Begin("Preferences");
+        ImGui::End();
+    }
+};
+struct ImGuiControlsBarPanel {
+    void Draw() {
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0, 2});
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemInnerSpacing, {0, 0});
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{0, 0, 0, 0});
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{0.3f, 0.305f, 0.31f, 0.5f});
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{0.3f, 0.305f, 0.31f, 0.5f});
+        ImGui::Begin("##controls", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+        Scene* scene = &EngineData::CurrentScene();
+        Texture* icon = scene->State() == SceneState::STOPPED ? 
+            ResourceManager::GetEngineResource<Texture>("play_icon"):
+            ResourceManager::GetEngineResource<Texture>("stop_icon");
 
+        float size = ImGui::GetWindowHeight() - 4.0f;
+        ImGui::SetCursorPosX((ImGui::GetWindowContentRegionMax().x * 0.5f) - (size * 0.5f));
+        if (ImGui::ImageButton((void*)(intptr_t) icon->textureHandle, ImVec2 {20, 20})) {
+            if (scene->State() == SceneState::STOPPED) {
+                scene->Start();
+            }
+            else if (scene->State() == SceneState::PLAYING) {
+                scene->Stop();
+            }
+        }
+        ImGui::PopStyleColor(3);
+        ImGui::PopStyleVar(2);
+        ImGui::End();
     }
 };
 
@@ -674,6 +650,12 @@ private:
         if (EngineData::Preferences().isSceneHeirarchyPanelEnabled)
             Get().sceneHeirarchyPanel.Draw();
 
+        if (EngineData::Preferences().isPreferencesWindowEnabled)
+            Get().preferencesPanel.Draw();
+       
+        if (EngineData::Preferences().isControlsBarPanelEnabled)
+            Get().controlsPanel.Draw();
+
         if (EngineData::Preferences().isDemoWindowEnabled)
             ImGui::ShowDemoWindow();
 
@@ -689,7 +671,6 @@ private:
 private:
     ImGuiMenuPanel menuPanel;
     ImGuiViewportPanel viewportPanel;
-    //ImGuiConsolePanel consolePanel;
     ImGuiStatsPanel statsPanel;
     ImGuiPropertiesPanel propertiesPanel;
     ImGuiSignalsPanel signalsPanel;
@@ -697,6 +678,8 @@ private:
     ImGuiScriptEditorPanel scriptEditor;
     ImGuiFileManagerPanel fileManager;
     ImGuiSceneHeirarchy sceneHeirarchyPanel;
+    ImGuiPreferencesPanel preferencesPanel;
+    ImGuiControlsBarPanel controlsPanel;
 
 public:
     ImFont* font;

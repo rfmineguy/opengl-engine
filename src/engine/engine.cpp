@@ -17,6 +17,9 @@ void Engine::Create() {
     EngineData::Deserialize();  //load saved engine data
     ResourceManager::LoadEngineResource<Texture>("folder_icon", "res/engine_files/file_browser/folder.png");
     ResourceManager::LoadEngineResource<Texture>("file_icon", "res/engine_files/file_browser/txt_file.png");
+    ResourceManager::LoadEngineResource<Texture>("play_icon", "res/engine_files/controls/play.png");
+    ResourceManager::LoadEngineResource<Texture>("stop_icon", "res/engine_files/controls/stop.png");
+
     ResourceManager::LoadProjectResource<Shader>("test_shader", "/shaders/experimental/");
     ResourceManager::LoadProjectResource<TextureAtlas>("spritesheet", "/textures/testing.atlas");
     ResourceManager::PrintContents();

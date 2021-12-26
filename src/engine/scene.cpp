@@ -40,6 +40,14 @@ void Scene::OnResize(int w, int h) {
     frameBuffer.Resize(w, h);
 }
 
+void Scene::Start() {
+    state = SceneState::PLAYING;
+}
+
+void Scene::Stop() {
+    state = SceneState::STOPPED;
+}
+
 void Scene::CreateEntity(const std::string& id) {
     if (uEntities.count(id) == 0) {
         uEntities.emplace(id, std::make_unique<Entity>(this, id));

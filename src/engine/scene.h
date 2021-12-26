@@ -8,6 +8,10 @@ namespace Firefly {
 
 class Entity;
 
+enum class SceneState {
+    PLAYING, STOPPED
+};
+
 class Scene {
 public:
     Scene();
@@ -16,11 +20,18 @@ public:
     void Update(float dt);
     void OnResize(int w, int h);
 
+    void Start();
+    void Stop();
+
     void CreateEntity(const std::string& id);
     Entity* FindEntity(const std::string& id);
     bool DestroyEntity(const std::string& id);
+
+    SceneState State() { return state; }
     
 private:
+    SceneState state;
+
     entt::registry reg;
     OrthoCamera cam;
     FrameBuffer frameBuffer;

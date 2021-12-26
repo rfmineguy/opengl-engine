@@ -22,6 +22,8 @@ struct EnginePreferences : public JsonSerializable {
     bool isPropertiesPanelEnabled = true;
     bool isScriptEditorPanelEnabled = true;
     bool isSceneHeirarchyPanelEnabled = true;
+    bool isControlsBarPanelEnabled = true;
+    bool isPreferencesWindowEnabled = false;
     bool isDemoWindowEnabled = false;
 
     void Serialize(json& jValue) override {
@@ -35,6 +37,8 @@ struct EnginePreferences : public JsonSerializable {
         jValue["engine-prefs"]["isPropertiesPanelEnabled"]     = isPropertiesPanelEnabled;
         jValue["engine-prefs"]["isScriptEditorPanelEnabled"]   = isScriptEditorPanelEnabled;
         jValue["engine-prefs"]["isSceneHeirarchyPanelEnabled"] = isSceneHeirarchyPanelEnabled;
+        jValue["engine-prefs"]["isControlsBarPanelEnabled"]    = isControlsBarPanelEnabled;
+        jValue["engine-prefs"]["isPreferencesWindowEnabled"]   = isPreferencesWindowEnabled;
         jValue["engine-prefs"]["isDemoWindowEnabled"]          = isDemoWindowEnabled;
     }
 
@@ -47,7 +51,9 @@ struct EnginePreferences : public JsonSerializable {
        isConsolePanelEnabled        = jValue["engine-prefs"]["isConsolePanelEnabled"]; 
        isStatPanelEnabled           = jValue["engine-prefs"]["isStatPanelEnabled"];
        isPropertiesPanelEnabled     = jValue["engine-prefs"]["isPropertiesPanelEnabled"]; 
-       isSceneHeirarchyPanelEnabled = jValue["engine-prefs"]["isSceneHeirarchyPanelEnabled"]; 
+       isSceneHeirarchyPanelEnabled = jValue["engine-prefs"]["isSceneHeirarchyPanelEnabled"];
+       isControlsBarPanelEnabled    = jValue["engine-prefs"]["isControlsBarPanelEnabled"];
+       isPreferencesWindowEnabled   = jValue["engine-prefs"]["isPreferencesWindowEnabled"];
        isDemoWindowEnabled          = jValue["engine-prefs"]["isDemoWindowEnabled"]; 
     }
 };

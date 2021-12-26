@@ -36,5 +36,7 @@ private:
 
     int subTexWidth, subTexHeight;
     int cellsWide, cellsTall;         //how many cells across and top to bottom
+
+friend class ImGuiPropertiesPanel;
 };
 }

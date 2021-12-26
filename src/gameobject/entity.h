@@ -36,8 +36,10 @@ public:
     }
 
     void AddChild(const std::string& _id) {
+        int parentLevel = this->GetComponent<Relationship>().level;
         this->GetComponent<Relationship>().isParent = true;
         this->GetComponent<Relationship>().children.push_back(_id);
+        mScene->FindEntity(_id)->GetComponent<Relationship>().level = parentLevel + 1;
         mScene->FindEntity(_id)->GetComponent<Relationship>().isChild = true;
         mScene->FindEntity(_id)->GetComponent<Relationship>().parent = this->id;
     }

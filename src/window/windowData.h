@@ -6,6 +6,8 @@ struct WindowData {
     float lastFrameTime, frameTime;
     int windowWidth, windowHeight;
     bool resized;
+    float xScale, yScale;
+    bool shouldClose;
 };
 
 extern WindowData WinData;

@@ -173,6 +173,7 @@ void Window::Update() {
             if (WinData.resized) {
                 engine->Resize(WinData.windowWidth, WinData.windowHeight);
                 WinData.resized = false;
+                glfwGetWindowContentScale(window, &WinData.xScale, &WinData.yScale);
             }
             //clear screen
             glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -209,8 +210,10 @@ void Window::RenderImGui() {
 
 void Window::PollEvents(GLFWwindow* window) {
     glfwPollEvents();
-    if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+    //if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS || WinData.shouldClose) {
+    if (WinData.shouldClose) {
         glfwSetWindowShouldClose(window, true);
+    }
 }
 
 

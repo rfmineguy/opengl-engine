@@ -30,16 +30,21 @@ void Engine::Create() {
             EngineData::CurrentScene().CreateEntity(id);
 
             Entity* e = EngineData::CurrentScene().FindEntity(id);
-            e->GetComponent<Transform>().position.x = i * 16;
-            e->GetComponent<Transform>().position.y = j * 16;
+            Transform& t = e->GetComponent<Transform>();
+            t.position.x = i * 128;
+            t.position.y = j * 128;
+            t.scale.x = 128;
+            t.scale.y = 128;
         }
     }
 
     Entity* e = EngineData::CurrentScene().FindEntity("entity_00");
     Entity* e1 = EngineData::CurrentScene().FindEntity("entity_01");
     Entity* e2 = EngineData::CurrentScene().FindEntity("entity_11");
+    Entity* e3 = EngineData::CurrentScene().FindEntity("entity_10");
     e->AddChild(e1);
     e->AddChild(e2);
+    e2->AddChild(e3);
 
     for (std::string& s : e->GetChildren()) {
         LOG_INFO("{}", s.c_str());
@@ -53,13 +58,21 @@ void Firefly::Engine::Destroy() {
 void Firefly::Engine::Update(float dt) {
     EngineData::CurrentScene().Update(dt);
 
-    //LOG_INFO("{}", EngineData::CurrentScene().reg.size());
-
     glm::vec2 worldMouse = EngineData::CurrentScene().cam.ScreenToWorld(Input.mouse);
 
     Entity* e = EngineData::CurrentScene().FindEntity("entity_00");
     if (e->HasComponent<Transform>()) {
-        e->GetComponent<Transform>().position = glm::vec3(worldMouse.x, worldMouse.y, 0);
+        Transform& t = e->GetComponent<Transform>();
+        t.position = glm::vec3(worldMouse.x, worldMouse.y, 0);
+
+        if (Input.IsKeyDown(GLFW_KEY_E)) {
+            t.rotation += 3;
+        }
+        if (Input.IsKeyDown(GLFW_KEY_Q)) {
+            t.rotation -= 3;
+        }
+        if (Input.IsMouseDown(0)) {
+        }
     }
 }
 

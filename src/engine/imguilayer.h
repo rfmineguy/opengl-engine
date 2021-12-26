@@ -2,6 +2,7 @@
 #include "../renderer/renderer2D.h"
 #include "../util/resourceManager.h"
 #include "../window/inputData.h"
+#include "../window/windowData.h"
 #include "engineData.h"
 #include "imgui/imgui.h"
 #include "imgui/imgui_stdlib.h"
@@ -61,7 +62,9 @@ struct ImGuiMenuPanel {
                 if (ImGui::MenuItem("Open Scene")) {}
                 if (ImGui::MenuItem("Close Scene")) {}
                 if (ImGui::MenuItem("Open Recent")) {}
-                if (ImGui::MenuItem("Quit")) {}
+                if (ImGui::MenuItem("Quit")) {
+                    WinData.shouldClose = true;
+                }
                 ImGui::EndMenu();
             }
             if (ImGui::BeginMenu("Edit")) {
@@ -104,27 +107,6 @@ struct ImGuiMenuPanel {
 
     void OpenProjectModal() {
 
-    }
-};
-struct ImGuiRegistryPanel {
-    void Draw() {
-        ImGui::Begin("Registry");
-        if (ImGui::CollapsingHeader("GameObjects")) {
-            ImGuiIO& io = ImGui::GetIO();
-            
-            if (ImGui::Button("Create GameObject")) {
-                LOG_DEBUG("Creating new gameobject (WIP)");
-            }
-            /*
-            for (const auto &entry : Registry::Get().entities) {
-                std::string displayName = Registry::GetComponent<Identifier>(entry.first).displayName;
-                std::string id = Registry::GetComponent<Identifier>(entry.first).id;
-                if (ImGui::Selectable(displayName.c_str())) 
-                    EngineData::SetSelected(SelectionType::GAMEOBJECT, id);
-            }
-            */
-        }
-        ImGui::End();
     }
 };
 struct ImGuiSignalsPanel {
@@ -183,6 +165,7 @@ struct ImGuiStatsPanel {
         ImGui::Begin("Statistics");
         ImGui::Text("Mouse Position {%0.4f %0.4f}", Input.mouse.x, Input.mouse.y);
         ImGui::Text("Viewport Size {%d %d}", Renderer2D::Get().frameBuffer.GetWidth(), Renderer2D::Get().frameBuffer.GetHeight());
+        ImGui::Text("ImGui Scale {%0.4f %0.4f}", WinData.xScale, WinData.yScale);
         ImGui::Text("Current Directory {%s}", EngineData::Get().state.currentDir.c_str());
         ImGui::Text("Project Root {%s}", EngineData::Get().state.openProjectRoot.c_str());
         ImGui::End();
@@ -210,11 +193,9 @@ struct ImGuiPropertiesPanel {
         }
         
         if (EngineData::Get().selectionType == SelectionType::ENTITY) {
-            ImGui::Text("Entity");
             Entity* e = EngineData::CurrentScene().FindEntity(EngineData::Get().selectionId);
-           
-            //DisplayComponents(e);
-            //AddComponentWigdet(e);
+            DisplayComponents(e);
+            AddComponentWigdet(e);
         }
 
         if (EngineData::Get().selectionType == SelectionType::GAMEOBJECT) {
@@ -273,52 +254,77 @@ struct ImGuiPropertiesPanel {
     }
     
     void DisplayComponents(Entity* entity) {
-            if (entity->HasComponent<Identifier>()) {
-                if (ImGui::TreeNode("Identifier")) {
-                    CallbackData data;
-                    data.registryId = &entity->GetComponent<Identifier>().id;
-                    data.displayName = &entity->GetComponent<Identifier>().displayName;
+        if (entity->HasComponent<Identifier>()) {
+            if (ImGui::TreeNode("Identifier")) {
+                CallbackData data;
+                data.registryId = &entity->GetComponent<Identifier>().id;
+                data.displayName = &entity->GetComponent<Identifier>().displayName;
 
-                    ImGui::Text("ID: %s", data.registryId->c_str());
-                    ImGui::InputText("Display Name: ", &*data.displayName, ImGuiInputTextFlags_CallbackEdit, PropertiesCallbacks::DisplayNameChanged, (void*)&data);
-                    ImGui::TreePop();
-                }
+                ImGui::Text("ID: %s", data.registryId->c_str());
+                ImGui::InputText("Display Name: ", &*data.displayName, ImGuiInputTextFlags_CallbackEdit, PropertiesCallbacks::DisplayNameChanged, (void*)&data);
+                ImGui::TreePop();
             }
-            if (entity->HasComponent<Transform>()) {
-                if (ImGui::TreeNode("Transform")) {
-                    Transform& t = entity->GetComponent<Transform>();
-                    ImGui::DragFloat2("Position", &t.position.x);
-                    ImGui::DragFloat2("Scale", &t.scale.x);
-                    ImGui::DragFloat("Rotation", &t.rotation);
-                    ImGui::TreePop();
-                }
+        }
+        if (entity->HasComponent<Relationship>()) {
+            if (ImGui::TreeNode("Relationship")) {
+                Relationship& r = entity->GetComponent<Relationship>();
+                ImGui::Text("Parent : %s", r.parent.c_str());
+                ImGui::Text("Level : %d", r.level);
+                ImGui::TreePop();
             }
-            if (entity->HasComponent<Renderable>()) {
-                if (ImGui::TreeNode("Renderable")) {
-                    CallbackData data;
-                    Renderable& r = entity->GetComponent<Renderable>();
-                    TextureAtlas* atlas = ResourceManager::GetProjectResource<TextureAtlas>(r.resourceId);
-                    ImGui::Image((void*)(intptr_t) atlas->textureHandle, ImVec2{64, 64}, ImVec2{0, 1}, ImVec2{1, 0});
-                    ImGui::TreePop();
-                }
+        }
+        if (entity->HasComponent<Transform>()) {
+            if (ImGui::TreeNode("Transform")) {
+                Transform& t = entity->GetComponent<Transform>();
+                ImGui::DragFloat2("Position", &t.position.x);
+                ImGui::DragFloat2("Scale", &t.scale.x);
+                ImGui::DragFloat("Rotation", &t.rotation);
+                ImGui::TreePop();
             }
-            if (entity->HasComponent<AnimatedRenderable>()) {
-                if (ImGui::TreeNode("Animated Renderable")) {
+        }
+        if (entity->HasComponent<Renderable>()) {
+            if (ImGui::TreeNode("Renderable")) {
+                CallbackData data;
+                Renderable& r = entity->GetComponent<Renderable>();
+                TextureAtlas* atlas = ResourceManager::GetProjectResource<TextureAtlas>(r.resourceId);
+                ImGui::Image((void*)(intptr_t) atlas->textureHandle, ImVec2{64, 64}, ImVec2{0, 1}, ImVec2{1, 0});
+                if (ImGui::BeginListBox("Subregions")) {
+                    int id = 0;
+                    for (auto& element : atlas->map) {
+                        const bool is_selected = (r.atlasSubRegionName == element.first);
+                        if (ImGui::Selectable(element.first.c_str(), is_selected)) {
+                            LOG_DEBUG("Selected {}", element.first.c_str());
+                            r.atlasSubRegionName = element.first;
+                            r.region = Renderer2D::Get().textureAtlas->GetRegion(element.first);
+                        }
 
-                    ImGui::TreePop();
-                }
-            }
-            if (entity->HasComponent<Script>()) {
+                        if (is_selected)
+                            ImGui::SetItemDefaultFocus();
 
-            }
-            if (entity->HasComponent<SpriteRenderer>()) {
-                if (ImGui::TreeNode("SpriteRenderer")) {
-                    SpriteRenderer& r = entity->GetComponent<SpriteRenderer>();
-                    ImGui::Text("Source Resource ID %s", r.resourceId.c_str());
-                    ImGui::Text("AtlasSubRegionName %s", r.atlasSubRegionName.c_str());
-                    ImGui::TreePop();
+                        id++;
+                    }
+                    ImGui::EndListBox();
                 }
+                ImGui::TreePop();
             }
+        }
+        if (entity->HasComponent<AnimatedRenderable>()) {
+            if (ImGui::TreeNode("Animated Renderable")) {
+
+                ImGui::TreePop();
+            }
+        }
+        if (entity->HasComponent<Script>()) {
+
+        }
+        if (entity->HasComponent<SpriteRenderer>()) {
+            if (ImGui::TreeNode("SpriteRenderer")) {
+                SpriteRenderer& r = entity->GetComponent<SpriteRenderer>();
+                ImGui::Text("Source Resource ID %s", r.resourceId.c_str());
+                ImGui::Text("AtlasSubRegionName %s", r.atlasSubRegionName.c_str());
+                ImGui::TreePop();    
+            }
+        }
     }
 
     void AddComponentWigdet(Entity* entity) {
@@ -480,29 +486,31 @@ struct ImGuiFileManagerPanel {
             const auto& path = p.path();
             auto relPath = std::filesystem::relative(path, EngineData::Get().state.openProjectRoot);
             std::string filenameStr = relPath.filename().string();
+           
+            if (filenameStr != ".DS_Store") {
+                Texture* folderTex = ResourceManager::GetEngineResource<Texture>("folder_icon");
+                Texture* fileTex = ResourceManager::GetEngineResource<Texture>("file_icon");
+                ImGui::PushID(id);           
             
-            Texture* folderTex = ResourceManager::GetEngineResource<Texture>("folder_icon");
-            Texture* fileTex = ResourceManager::GetEngineResource<Texture>("file_icon");
-            ImGui::PushID(id);           
-            
-            if (p.is_directory()) {
-                if (ImGui::ImageButton((void*)(intptr_t) folderTex->textureHandle, ImVec2{128, 128}, ImVec2{0, 1}, ImVec2{1, 0})) {
-                    LOG_DEBUG("Move directories");
-                    EngineData::Get().state.currentDir /= path.filename();
+                if (p.is_directory()) {
+                    if (ImGui::ImageButton((void*)(intptr_t) folderTex->textureHandle, ImVec2{128, 128}, ImVec2{0, 1}, ImVec2{1, 0})) {
+                        LOG_DEBUG("Move directories");
+                        EngineData::Get().state.currentDir /= path.filename();
+                    }
+                    ImGui::Text("%s", filenameStr.c_str());
                 }
-                ImGui::Text("%s", filenameStr.c_str());
-            }
-            else {
-                if (ImGui::ImageButton((void*)(intptr_t) fileTex->textureHandle, ImVec2{128, 128}, ImVec2{0, 1}, ImVec2{1, 0})) {
-                    LOG_DEBUG("Open file");
+                else {
+                    if (ImGui::ImageButton((void*)(intptr_t) fileTex->textureHandle, ImVec2{128, 128}, ImVec2{0, 1}, ImVec2{1, 0})) {
+                        LOG_DEBUG("Open file");
+                    }
+                    ImGui::Text("%s", filenameStr.c_str());
                 }
-                ImGui::Text("%s", filenameStr.c_str());
+
+                ImGui::PopID();
+                id++;
+
+                ImGui::TableNextColumn();
             }
-
-            ImGui::PopID();
-            id++;
-
-            ImGui::TableNextColumn();
         }
         ImGui::EndTable();
 
@@ -527,19 +535,15 @@ struct ImGuiSceneHeirarchy {
         flags |= ImGuiTreeNodeFlags_SpanAvailWidth;
         auto& id = entity->GetComponent<Identifier>().id;
         
-        if (std::find(drawnNodes.begin(), drawnNodes.end(), id) == drawnNodes.end()) {
-            bool opened = DrawNode(entity, id);
-            if (opened) {
-                if (entity->HasChildren()) {
-                    for (int i = 0; i < entity->GetChildren().size(); i++) {
-                        DrawHeirarchy(scene->FindEntity(entity->GetChildren()[i]));
-                    }
+        if (DrawNode(entity, id)) {
+            for (auto& id : entity->GetChildren()) {
+                Entity* e = scene->FindEntity(id);
+                if (e->GetParent() == entity->GetComponent<Identifier>().id) {
+                    DrawHeirarchy(e);
                 }
-                ImGui::TreePop();
             }
-            drawnNodes.push_back(id);
+            ImGui::TreePop();
         }
-
     }
 
     bool DrawNode(Entity* entity, const std::string& id) {
@@ -551,6 +555,7 @@ struct ImGuiSceneHeirarchy {
                 EngineData::Get().selectionId = id;
                 EngineData::Get().selectionType = SelectionType::ENTITY;
             }
+            drawnNodes.push_back(id);
         }
         return opened;
     }
@@ -576,8 +581,9 @@ public:
         
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
         io.WantSaveIniSettings = true;
+        //ImGuiLayer::Get().font = io.Fonts->AddFontFromFileTTF("res/engine_files/fonts/Montserrat-Light.tff", 16.0f);
         //io.ConfigDockingWithShift = true;
-        //
+       
         LOG_DEBUG("Initialized ImGuiLayer");
     }
     static void Draw() {
@@ -616,6 +622,9 @@ private:
         ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 1);
         ImGui::Begin("DockSpace Demo", &dockspace_open, window_flags);
 
+        ImGui::GetIO().DisplayFramebufferScale.x = WinData.xScale;
+        ImGui::GetIO().DisplayFramebufferScale.y = WinData.yScale;
+
         ImGuiIO& io = ImGui::GetIO();
         io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
         if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable) {
@@ -636,10 +645,10 @@ private:
     }
     
     static void DrawUI() {
-        Get().menuPanel.Draw();
+        ImGuiIO& io = ImGui::GetIO();
 
-        if (EngineData::Preferences().isRegistryPanelEnabled)
-            Get().registryPanel.Draw();
+        ImGui::PushFont(Get().font);
+        Get().menuPanel.Draw();
         
         if (EngineData::Preferences().isSignalPanelEnabled)
             Get().signalsPanel.Draw();
@@ -667,6 +676,8 @@ private:
 
         if (EngineData::Preferences().isDemoWindowEnabled)
             ImGui::ShowDemoWindow();
+
+        ImGui::PopFont();
     }
 
 private:
@@ -678,7 +689,6 @@ private:
 private:
     ImGuiMenuPanel menuPanel;
     ImGuiViewportPanel viewportPanel;
-    ImGuiRegistryPanel registryPanel;
     //ImGuiConsolePanel consolePanel;
     ImGuiStatsPanel statsPanel;
     ImGuiPropertiesPanel propertiesPanel;
@@ -687,6 +697,9 @@ private:
     ImGuiScriptEditorPanel scriptEditor;
     ImGuiFileManagerPanel fileManager;
     ImGuiSceneHeirarchy sceneHeirarchyPanel;
+
+public:
+    ImFont* font;
 
 public:
     friend class Window;

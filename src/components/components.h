@@ -90,6 +90,7 @@ struct SpriteRenderer {
 
 struct Relationship {
     bool isParent, isChild;
+    int level;
     std::string parent;
     std::vector<std::string> children;
 };

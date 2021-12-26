@@ -11,6 +11,7 @@ Scene::Scene() {
     root = std::make_unique<Entity>(this, "root");
     root->AddComponent<Relationship>();
     root->GetComponent<Relationship>().isParent = true;
+    root->GetComponent<Relationship>().level = 0;
     root->AddComponent<Identifier>("root", "root");
 }
 
@@ -47,7 +48,7 @@ void Scene::CreateEntity(const std::string& id) {
         e->AddComponent<Identifier>(id, id);
         e->AddComponent<SpriteRenderer>();
         e->AddComponent<Renderable>("spritesheet", "bigx");
-        e->AddComponent<Relationship>(false, false, "root");
+        e->AddComponent<Relationship>(false, false, 0, "root");
         root->AddChild(e);
         return;
     }

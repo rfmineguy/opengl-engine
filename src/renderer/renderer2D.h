@@ -245,5 +245,9 @@ private:
 
 public:
     FrameBuffer frameBuffer;
+
+    friend class ImGuiPropertiesPanel;
 };
+
+
 }

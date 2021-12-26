@@ -11,6 +11,13 @@ struct InputData {
     bool mouseDown = false;
 
     double scrollXOffset, scrollYOffset;
+
+    bool IsMouseDown(int id) {
+        return buttons[id];
+    }
+    bool IsKeyDown(int id) {
+        return keys[id];
+    }
 };
 
 extern InputData Input;

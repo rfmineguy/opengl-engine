@@ -31,6 +31,7 @@ public:
     
 private:
     SceneState state;
+    bool focused = false;
 
     entt::registry reg;
     OrthoCamera cam;

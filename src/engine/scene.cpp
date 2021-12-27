@@ -32,8 +32,10 @@ void Scene::Draw() {
 }
 
 void Scene::Update(float dt) {
-    cam.Movement();
-    glm::vec2 worldMouse = cam.ScreenToWorld(Input.mouse);
+    if (state == SceneState::PLAYING && focused) {
+        cam.Movement();
+        glm::vec2 worldMouse = cam.ScreenToWorld(Input.mouse);
+    }
 }
 
 void Scene::OnResize(int w, int h) {

@@ -17,7 +17,6 @@ struct EnginePreferences : public JsonSerializable {
     bool isFileManagerPanelEnabled = true;
     bool isRegistryPanelEnabled = true;
     bool isViewportPanelEnabled = true;
-    bool isConsolePanelEnabled = true;
     bool isStatPanelEnabled = true;
     bool isPropertiesPanelEnabled = true;
     bool isScriptEditorPanelEnabled = true;
@@ -32,7 +31,6 @@ struct EnginePreferences : public JsonSerializable {
         jValue["engine-prefs"]["isFileManagerPanelEnabled"]    = isFileManagerPanelEnabled;
         jValue["engine-prefs"]["isRegistryPanelEnabled"]       = isRegistryPanelEnabled;
         jValue["engine-prefs"]["isViewportPanelEnabled"]       = isViewportPanelEnabled;
-        jValue["engine-prefs"]["isConsolePanelEnabled"]        = isConsolePanelEnabled;
         jValue["engine-prefs"]["isStatPanelEnabled"]           = isStatPanelEnabled;
         jValue["engine-prefs"]["isPropertiesPanelEnabled"]     = isPropertiesPanelEnabled;
         jValue["engine-prefs"]["isScriptEditorPanelEnabled"]   = isScriptEditorPanelEnabled;
@@ -48,7 +46,6 @@ struct EnginePreferences : public JsonSerializable {
        isFileManagerPanelEnabled    = jValue["engine-prefs"]["isFileManagerPanelEnabled"]; 
        isRegistryPanelEnabled       = jValue["engine-prefs"]["isRegistryPanelEnabled"]; 
        isViewportPanelEnabled       = jValue["engine-prefs"]["isViewportPanelEnabled"]; 
-       isConsolePanelEnabled        = jValue["engine-prefs"]["isConsolePanelEnabled"]; 
        isStatPanelEnabled           = jValue["engine-prefs"]["isStatPanelEnabled"];
        isPropertiesPanelEnabled     = jValue["engine-prefs"]["isPropertiesPanelEnabled"]; 
        isSceneHeirarchyPanelEnabled = jValue["engine-prefs"]["isSceneHeirarchyPanelEnabled"];

@@ -192,17 +192,8 @@ struct ImGuiPropertiesPanel {
             ImGui::End();
             return;
         }
-        
         if (EngineData::Get().selectionType == SelectionType::ENTITY) {
             Entity* e = EngineData::CurrentScene().FindEntity(EngineData::Get().selectionId);
-            DisplayComponents(e);
-            AddComponentWigdet(e);
-        }
-
-        if (EngineData::Get().selectionType == SelectionType::GAMEOBJECT) {
-            ImGui::Text("GameObject");
-            Entity* e = EngineData::CurrentScene().FindEntity(EngineData::Get().selectionId);
-           
             DisplayComponents(e);
             AddComponentWigdet(e);
         }
@@ -316,7 +307,10 @@ struct ImGuiPropertiesPanel {
             }
         }
         if (entity->HasComponent<Script>()) {
-
+            if (ImGui::TreeNode("Script")) {
+                Script& s = entity->GetComponent<Script>();
+                ImGui::Text("%s", s.luaScriptPath.c_str());
+            }
         }
         if (entity->HasComponent<SpriteRenderer>()) {
             if (ImGui::TreeNode("SpriteRenderer")) {
@@ -376,6 +370,13 @@ struct ImGuiViewportPanel {
         //LOG_DEBUG("Drawing framebuffer");
         GLuint texId = EngineData::CurrentScene().frameBuffer.GetColorAttachment();
         ImGui::Image((void*)(intptr_t) texId, viewportSize);
+
+        if (ImGui::IsWindowFocused()) {
+            EngineData::CurrentScene().focused = true;
+        }
+        else {
+            EngineData::CurrentScene().focused = false;
+        }
 
         if (lastViewportSize.x != viewportSize.x || lastViewportSize.y != viewportSize.y) {
             EngineData::CurrentScene().OnResize(viewportSize.x, viewportSize.y);
@@ -520,7 +521,14 @@ struct ImGuiControlsBarPanel {
         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{0, 0, 0, 0});
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{0.3f, 0.305f, 0.31f, 0.5f});
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{0.3f, 0.305f, 0.31f, 0.5f});
-        ImGui::Begin("##controls", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+
+        ImGuiWindowFlags flags = 0;
+        flags |= ImGuiWindowFlags_NoTitleBar;
+        flags |= ImGuiWindowFlags_NoScrollbar;
+        flags |= ImGuiWindowFlags_NoScrollWithMouse;
+        flags |= ImGuiWindowFlags_NoResize;
+
+        ImGui::Begin("Controls", nullptr, flags);
         Scene* scene = &EngineData::CurrentScene();
         Texture* icon = scene->State() == SceneState::STOPPED ? 
             ResourceManager::GetEngineResource<Texture>("play_icon"):

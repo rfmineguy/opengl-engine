@@ -15,7 +15,7 @@ Firefly Engine is a personal project for me that was intended to be a small intr
    * Signals (WIP, planned)
  - Projects
    * User specified project directory
-   * Interface for creating/opening projects WIP
+   * Interface for creating/opening projects (not fully implemented)
 
 ## Usage
 ### Resource Manager

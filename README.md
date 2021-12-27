@@ -17,6 +17,29 @@ Firefly Engine is a personal project for me that was intended to be a small intr
    * User specified project directory
    * Interface for creating/opening projects WIP
 
+## Usage
+### Resource Manager
+ - The resource manager handles Texture, TextureAtlas, and Shader
+```c++
+ //Load a Texture relative to your project root directory
+ ResourceManager::LoadProjectResource<Texture>("test", "textures/test.png");
+ 
+ //Retrieve this loaded Texture
+ Texture* t = ResourceManager::GetProjectResource<Texture>("test");
+```
+
+### Scene System
+ - At the moment the engine only ever hosts a single scene, and is located in the __EngineData__ Singleton
+ ```c++
+  //Create entity
+  EngineData::CurrentScene().CreateEntity("entityId");
+  Entity* e = EngineData::CurrentScene().FindEntity("entityId");
+ ```
+
+
+
+### Projects
+
 ## Build Instructions
  1. git clone https://github.com/rfmineguy/opengl-engine
  2. cd opengl-engine

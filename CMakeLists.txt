@@ -45,6 +45,7 @@ add_subdirectory(vendor/glm)
 add_subdirectory(vendor/entt)
 add_subdirectory(vendor/glfw)
 add_subdirectory(vendor/json)
+add_subdirectory(vendor/ImGuizmo)
 
 include_directories(opengl vendor vendor/glm/glm)
 
@@ -56,6 +57,7 @@ target_link_libraries(opengl
     glfw 
     imgui 
     imgui_file_dialog
+    imguizmo
     glm 
     stb 
     EnTT::EnTT 

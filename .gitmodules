@@ -16,4 +16,8 @@
 
 [submodule "vendor/json"]
 	path = vendor/json
-	url = https://github.com/nlohmann/json
+    url = https://github.com/nlohmann/json
+
+[submodule "vendor/ImGuizmo"]
+	path = vendor/ImGuizmo
+	url = https://github.com/CedricGuillemet/ImGuizmo

@@ -5,6 +5,7 @@ Firefly Engine is a personal project for me that was intended to be a small intr
 ## Features
  - A basic 2D renderer
  - A resource management system
+   * split into engine resources and project resources
  - A basic scene system (WIP)
  - A fairly robust editor ui
    * Resources
@@ -12,3 +13,16 @@ Firefly Engine is a personal project for me that was intended to be a small intr
    * Properties
    * File Browser
    * Signals (WIP, planned)
+ - Projects
+   * User specified project directory
+   * Interface for creating/opening projects WIP
+
+## Build Instructions
+ 1. git clone https://github.com/rfmineguy/opengl-engine
+ 2. cd opengl-engine
+ 3. sh build.sh
+
+## Build Info
+ * Tested & working on Linux (Manjaro Arch)
+ * Tested & working on MacOs 12.1
+ * Untested on Windows

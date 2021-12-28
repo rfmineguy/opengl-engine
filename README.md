@@ -52,7 +52,8 @@ Firefly Engine is a personal project for me that was intended to be a small intr
  3. sh build.sh
  
  **NOTE**
-  BE SURE TO RECLONE THIS REPO EVERYTIME I UPDATE IT, MANY OF THE PUSHES I DO ARE VERSION BREAKING (meaning one version is NOT guaranteed to be compatible with another version)
+  Be sure to reclone this repo when I update it (versions are NOT guaranteed to be compatible with another version)
+  I'll do my best to make sure existing projects remain compatible, but once again there is no guarantee that this will be the case
 
 ## Build Info
  * Tested & working on Linux (Manjaro Arch)

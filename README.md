@@ -55,6 +55,7 @@ Firefly Engine is a personal project for me that was intended to be a small intr
  
  **Important Information**
  * Be sure to reclone this repo when I update it (versions are NOT guaranteed to be compatible with another version)
+   + I don't recommend even doing this given how limited of an application this is in its current state
  * I'll do my best to make sure existing projects remain compatible, but once again there is no guarantee that this will be the case
 
 ## Build Info

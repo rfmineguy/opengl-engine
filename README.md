@@ -44,7 +44,7 @@ Firefly Engine is a personal project for me that was intended to be a small intr
 ### Projects
 
 ## Build Instructions
- 1. git clone https://github.com/rfmineguy/opengl-engine
+ 1. git clone https://github.com/rfmineguy/opengl-engine into a directory of your choosing
  2. cd opengl-engine
  3. sh build.sh
 

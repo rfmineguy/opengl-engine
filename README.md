@@ -10,6 +10,7 @@ Firefly Engine is a personal project for me that was intended to be a small intr
  - A resource management system
    * split into engine resources and project resources
  - A basic scene system (WIP)
+ - Json serialization
  - A fairly robust editor ui
    * Resources
    * Scene Heirarchy (WIP)
@@ -39,9 +40,9 @@ Firefly Engine is a personal project for me that was intended to be a small intr
   Entity* e = EngineData::CurrentScene().FindEntity("entityId");
  ```
 
-
-
 ### Projects
+
+### Json Serializer
 
 ## Build Instructions
  1. git clone https://github.com/rfmineguy/opengl-engine into a directory of your choosing

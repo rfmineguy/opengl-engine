@@ -50,6 +50,9 @@ Firefly Engine is a personal project for me that was intended to be a small intr
  1. git clone https://github.com/rfmineguy/opengl-engine into a directory of your choosing
  2. cd opengl-engine
  3. sh build.sh
+ 
+ **NOTE**
+  BE SURE TO RECLONE THIS REPO EVERYTIME I UPDATE IT, MANY OF THE PUSHES I DO ARE VERSION BREAKING (meaning one version is NOT guaranteed to be compatible with another version)
 
 ## Build Info
  * Tested & working on Linux (Manjaro Arch)

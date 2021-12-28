@@ -41,8 +41,10 @@ Firefly Engine is a personal project for me that was intended to be a small intr
  ```
 
 ### Projects
+ - WIP
 
 ### Json Serializer
+ - WIP
 
 ## Build Instructions
  1. git clone https://github.com/rfmineguy/opengl-engine into a directory of your choosing

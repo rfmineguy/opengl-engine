@@ -123,7 +123,10 @@ private:
 
             //  CALCULATE MODELMATRIX
             //
-            glm::mat4 model = glm::mat4(1.0);
+            //glm::mat4 model = glm::mat4(1.0);
+            
+            glm::mat4& model = entity.GetComponent<Transform>().transform;
+            model = glm::mat4(1.0);
             model = glm::translate(model, t.position);
             model = glm::translate(model, glm::vec3(0.5f, 0.5f, 0.0f));
             model = glm::scale(model, t.scale);

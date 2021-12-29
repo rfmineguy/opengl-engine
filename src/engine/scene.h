@@ -23,7 +23,7 @@ public:
     void Start();
     void Stop();
 
-    void CreateEntity(const std::string& id);
+    Entity* CreateEntity(const std::string& id);
     Entity* FindEntity(const std::string& id);
     bool DestroyEntity(const std::string& id);
 
@@ -43,6 +43,7 @@ friend class Entity;
 friend class Engine;
 friend class ImGuiSceneHeirarchy;
 friend class ImGuiViewportPanel;
+friend class ImGuiDebugPanel;
 };
 
 }

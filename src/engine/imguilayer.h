@@ -11,6 +11,10 @@
 #include "../util/fileUtil.h"
 #include "../gameobject/entity.h"
 
+#include "ImGuizmo/ImGuizmo.h"
+#include "glm.hpp"
+#include "glm/gtc/type_ptr.hpp"
+
 class ImGuiLayer;
 
 namespace Firefly {
@@ -161,14 +165,26 @@ struct ImGuiResourcesPanel {
         ImGui::End();
     }
 };
-struct ImGuiStatsPanel {
+struct ImGuiDebugPanel {
     void Draw() {
-        ImGui::Begin("Statistics");
-        ImGui::Text("Mouse Position {%0.4f %0.4f}", Input.mouse.x, Input.mouse.y);
-        ImGui::Text("Viewport Size {%d %d}", Renderer2D::Get().frameBuffer.GetWidth(), Renderer2D::Get().frameBuffer.GetHeight());
-        ImGui::Text("ImGui Scale {%0.4f %0.4f}", WinData.xScale, WinData.yScale);
-        ImGui::Text("Current Directory {%s}", EngineData::Get().state.currentDir.c_str());
-        ImGui::Text("Project Root {%s}", EngineData::Get().state.openProjectRoot.c_str());
+        ImGui::Begin("Debug Information");
+        if (ImGui::TreeNode("Viewport Data")) {
+            ImGui::Text("Mouse Position {%0.4f %0.4f}", Input.mouse.x, Input.mouse.y);
+            ImGui::Text("Viewport Size {%d %d}", EngineData::CurrentScene().frameBuffer.GetWidth(), EngineData::CurrentScene().frameBuffer.GetHeight());
+            ImGui::Text("ImGui Scale {%0.4f %0.4f}", WinData.xScale, WinData.yScale);
+            ImGui::TreePop();
+        }
+        ImGui::Dummy({0, 20});
+        if (ImGui::TreeNode("File Structure Information")) {
+            ImGui::Text("Current Directory {%s}", EngineData::Get().state.currentDir.c_str());
+            ImGui::Text("Project Root {%s}", EngineData::Get().state.openProjectRoot.c_str());           
+            ImGui::TreePop();
+        }
+        ImGui::Dummy({0, 20});
+        if (ImGui::TreeNode("Preferences")) {
+            ImGui::Text("ResourcePanel: ");
+            ImGui::TreePop();
+        }
         ImGui::End();
     }
 };
@@ -371,17 +387,46 @@ struct ImGuiViewportPanel {
         GLuint texId = EngineData::CurrentScene().frameBuffer.GetColorAttachment();
         ImGui::Image((void*)(intptr_t) texId, viewportSize);
 
-        if (ImGui::IsWindowFocused()) {
-            EngineData::CurrentScene().focused = true;
+        Scene* scene = &EngineData::Get().CurrentScene();
+        Entity* e = scene->FindEntity(EngineData::Get().SelectedEntity());
+        if (e) {
+            ImGuizmo::SetOrthographic(true);
+            ImGuizmo::SetDrawlist();
+
+            float winWidth = (float) ImGui::GetWindowWidth();
+            float winHeight = (float) ImGui::GetWindowHeight();
+            ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, winWidth, winHeight);
+            
+            const auto& proj = scene->cam.GetProj();
+            const auto view = scene->cam.GetView();
+            Transform& t = e->GetComponent<Transform>();
+             
+            switch (EngineData::Get().currentOperation) {
+                case ImGuizmo::OPERATION::TRANSLATE:
+                    //show and manipulate translation gizmo
+                    break;
+                case ImGuizmo::OPERATION::ROTATE:
+                    //show and manipulate rotation gizmo
+                    break;
+                case ImGuizmo::OPERATION::SCALE:
+                    //show and manipulate scale gizmo
+                    break;
+                case -1:
+                    //do nothing
+                    break;
+                default:
+                    LOG_CRITICAL("Unhandled ImGuimo State");
+            }
+            ImGuizmo::Manipulate(glm::value_ptr(view), glm::value_ptr(proj), 
+                    ImGuizmo::OPERATION::TRANSLATE, ImGuizmo::MODE::LOCAL, glm::value_ptr(t.transform));
         }
-        else {
-            EngineData::CurrentScene().focused = false;
-        }
+        EngineData::CurrentScene().focused = ImGui::IsWindowFocused();
 
         if (lastViewportSize.x != viewportSize.x || lastViewportSize.y != viewportSize.y) {
             EngineData::CurrentScene().OnResize(viewportSize.x, viewportSize.y);
             lastViewportSize = { viewportSize.x, viewportSize.y };
         }
+        
         ImGui::End();
         ImGui::PopStyleVar();
     }
@@ -466,13 +511,11 @@ struct ImGuiFileManagerPanel {
     }  
 };
 struct ImGuiSceneHeirarchy {
-    std::vector<std::string> drawnNodes;
     void Draw() {
         ImGui::Begin("Scene Heirarchy");
         Scene* scene = &EngineData::CurrentScene();
         if (ImGui::CollapsingHeader("Entities")) {
             DrawHeirarchy(scene->root.get());
-            drawnNodes.clear();
         }
         ImGui::End();
     }
@@ -503,7 +546,6 @@ struct ImGuiSceneHeirarchy {
                 EngineData::Get().selectionId = id;
                 EngineData::Get().selectionType = SelectionType::ENTITY;
             }
-            drawnNodes.push_back(id);
         }
         return opened;
     }
@@ -643,8 +685,8 @@ private:
         if (EngineData::Preferences().isResourcePanelEnabled)
             Get().resourcesPanel.Draw();
         
-        if (EngineData::Preferences().isStatPanelEnabled)
-            Get().statsPanel.Draw();
+        if (EngineData::Preferences().isDebugPanelEnabled)
+            Get().debugPanel.Draw();
         
         if (EngineData::Preferences().isPropertiesPanelEnabled)
             Get().propertiesPanel.Draw();
@@ -679,7 +721,7 @@ private:
 private:
     ImGuiMenuPanel menuPanel;
     ImGuiViewportPanel viewportPanel;
-    ImGuiStatsPanel statsPanel;
+    ImGuiDebugPanel debugPanel;
     ImGuiPropertiesPanel propertiesPanel;
     ImGuiSignalsPanel signalsPanel;
     ImGuiResourcesPanel resourcesPanel;

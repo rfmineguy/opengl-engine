@@ -9,6 +9,7 @@
  *   position, scale, rotation
  */
 struct Transform {
+    glm::mat4 transform;
     glm::vec3 position;
     glm::vec3 scale;
     float rotation; 
@@ -31,6 +32,22 @@ struct Transform {
                 scale.x, scale.y, scale.z,
                 rotation);
     }
+};
+
+/* Orthographic Camera component
+ *  will handle camera functions and enable there to be more than one camera
+ *   in the scene at a time
+ */
+struct OrthoCameraTest {
+    const glm::vec4 GetView();
+    const glm::mat4 GetProj();
+    void SetPos(glm::vec3 pos);
+    void SetRotation(float rotation);
+    void SetScale(float sx, float sy);
+    void DeltaPos(float dx, float dy);
+    void SetViewportSize(int width, int height);
+
+    glm::vec2 ScreenToWorld(const glm::vec2 mouseCoord);
 };
 
 /* Identifier component

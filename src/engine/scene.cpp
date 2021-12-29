@@ -50,19 +50,21 @@ void Scene::Stop() {
     state = SceneState::STOPPED;
 }
 
-void Scene::CreateEntity(const std::string& id) {
+Entity* Scene::CreateEntity(const std::string& id) {
     if (uEntities.count(id) == 0) {
         uEntities.emplace(id, std::make_unique<Entity>(this, id));
-        Entity* e = FindEntity(id);
-        e->AddComponent<Transform>(0, 0, 32, 32, 0);
-        e->AddComponent<Identifier>(id, id);
-        e->AddComponent<SpriteRenderer>();
-        e->AddComponent<Renderable>("spritesheet", "bigx");
-        e->AddComponent<Relationship>(false, false, 0, "root");
-        root->AddChild(e);
-        return;
     }
-    LOG_WARN("Entity with id {} already exists", id.c_str());
+    else {
+        return nullptr;
+    }
+    Entity* e = FindEntity(id);
+    e->AddComponent<Transform>(0, 0, 32, 32, 0);
+    e->AddComponent<Identifier>(id, id);
+    e->AddComponent<SpriteRenderer>();
+    e->AddComponent<Renderable>("spritesheet", "bigx");
+    e->AddComponent<Relationship>(false, false, 0, "root");
+    root->AddChild(e);
+    return e;
 }
 
 Entity* Scene::FindEntity(const std::string& id) {

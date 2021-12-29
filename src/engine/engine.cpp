@@ -23,7 +23,6 @@ void Engine::Create() {
 
     ResourceManager::LoadProjectResource<Shader>("test_shader", "/shaders/experimental/");
     ResourceManager::LoadProjectResource<TextureAtlas>("spritesheet", "/textures/testing.atlas");
-    ResourceManager::PrintContents();
 
     Renderer2D::Init();
     ImGuiLayer::Init();
@@ -81,7 +80,7 @@ void Firefly::Engine::Update(float dt) {
 }
 
 void Firefly::Engine::Draw() {
-    Firefly::ImGuiLayer::Draw();
+    ImGuiLayer::Draw();
     EngineData::CurrentScene().Draw();
 }
 

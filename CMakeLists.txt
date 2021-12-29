@@ -31,6 +31,10 @@ set(SOURCES
     src/engine/scene.cpp
     
     src/engine/engine.cpp
+
+    src/game/game.h
+    src/game/testGame.cpp
+
     src/serializer/serializer.h
     )
 

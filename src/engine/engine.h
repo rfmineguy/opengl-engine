@@ -5,6 +5,7 @@
 #include "../renderer/orthoCamera.h"
 #include "../window/inputData.h"
 #include "../window/windowData.h"
+#include "../game/testGame.h"
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -21,6 +22,7 @@ public:
 
 private:
     OrthoCamera camera;
-    Scene currentScene;
+    Scene* currentScene;
+    TestGame game;
 };
 }

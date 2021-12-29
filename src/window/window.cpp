@@ -2,6 +2,7 @@
 #include "../../vendor/imgui/imgui_impl_glfw.h"
 #include "../../vendor/imgui/imgui_impl_opengl3.h"
 
+#include "ImGuizmo/ImGuizmo.h"
 #include "window.h"
 #include <GLFW/glfw3.h>
 #include <iostream>
@@ -183,10 +184,9 @@ void Window::Update() {
             ImGui_ImplOpenGL3_NewFrame();
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
+            ImGuizmo::BeginFrame();
             engine->Update(WinData.deltaTime);
             engine->Draw();
-            
-            RenderImGui();
 
             ImGui::Render();
             ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -203,9 +203,6 @@ void Window::Update() {
 void Window::Render() {
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
-}
-
-void Window::RenderImGui() {
 }
 
 void Window::PollEvents(GLFWwindow* window) {

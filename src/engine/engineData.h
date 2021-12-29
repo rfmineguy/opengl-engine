@@ -3,6 +3,7 @@
 #include <filesystem>
 #include "../serializer/serializable.h"
 #include "../serializer/json-serializable.h"
+#include "ImGuizmo/ImGuizmo.h"
 #include "scene.h"
 
 namespace Firefly {
@@ -17,7 +18,7 @@ struct EnginePreferences : public JsonSerializable {
     bool isFileManagerPanelEnabled = true;
     bool isRegistryPanelEnabled = true;
     bool isViewportPanelEnabled = true;
-    bool isStatPanelEnabled = true;
+    bool isDebugPanelEnabled = true;
     bool isPropertiesPanelEnabled = true;
     bool isScriptEditorPanelEnabled = true;
     bool isSceneHeirarchyPanelEnabled = true;
@@ -31,7 +32,7 @@ struct EnginePreferences : public JsonSerializable {
         jValue["engine-prefs"]["isFileManagerPanelEnabled"]    = isFileManagerPanelEnabled;
         jValue["engine-prefs"]["isRegistryPanelEnabled"]       = isRegistryPanelEnabled;
         jValue["engine-prefs"]["isViewportPanelEnabled"]       = isViewportPanelEnabled;
-        jValue["engine-prefs"]["isStatPanelEnabled"]           = isStatPanelEnabled;
+        jValue["engine-prefs"]["isStatPanelEnabled"]           = isDebugPanelEnabled;
         jValue["engine-prefs"]["isPropertiesPanelEnabled"]     = isPropertiesPanelEnabled;
         jValue["engine-prefs"]["isScriptEditorPanelEnabled"]   = isScriptEditorPanelEnabled;
         jValue["engine-prefs"]["isSceneHeirarchyPanelEnabled"] = isSceneHeirarchyPanelEnabled;
@@ -46,7 +47,7 @@ struct EnginePreferences : public JsonSerializable {
        isFileManagerPanelEnabled    = jValue["engine-prefs"]["isFileManagerPanelEnabled"]; 
        isRegistryPanelEnabled       = jValue["engine-prefs"]["isRegistryPanelEnabled"]; 
        isViewportPanelEnabled       = jValue["engine-prefs"]["isViewportPanelEnabled"]; 
-       isStatPanelEnabled           = jValue["engine-prefs"]["isStatPanelEnabled"];
+       isDebugPanelEnabled          = jValue["engine-prefs"]["isStatPanelEnabled"];
        isPropertiesPanelEnabled     = jValue["engine-prefs"]["isPropertiesPanelEnabled"]; 
        isSceneHeirarchyPanelEnabled = jValue["engine-prefs"]["isSceneHeirarchyPanelEnabled"];
        isControlsBarPanelEnabled    = jValue["engine-prefs"]["isControlsBarPanelEnabled"];
@@ -91,6 +92,10 @@ public:
         return Get().currentScene;
     }
 
+    static std::string SelectedEntity() {
+        return Get().selectionId;
+    }
+
     static void SetSelected(SelectionType type, std::string id) {
         Get().selectionType = type;
         Get().selectionId = id;
@@ -126,6 +131,7 @@ private:
     SelectionType selectionType;
     std::string selectionId;
     Scene currentScene;
+    int currentOperation = -1;
 
 private:
     char scriptText[1024 * 16] = "";
@@ -142,6 +148,7 @@ friend class ImGuiFileManagerPanel;
 friend class ImGuiMenuPanel;
 friend class ImGuiStatsPanel;
 friend class ImGuiSceneHeirarchy;
+friend class ImGuiViewportPanel;
 friend class Engine;
 };
 }

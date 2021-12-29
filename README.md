@@ -1,11 +1,9 @@
 # About
 My Website : https://rfmineguy.github.io/rfmineguy-website/
 
-<<<<<<< HEAD
 =======
 This README is does not fully document the engine, and there is no proper documentation generated for it. I don't recommend using this for anything serious for multiple reasons.<br> The main one being that it is no where close to being in a fully stable state, and doesn't have a runtime.
 
->>>>>>> 691a5ee8edbfa035634f587a67a5c63e8411f552
 # Firefly Engine
 
 Firefly Engine is a personal project for me that was intended to be a small introduction to both opengl and c++. It ended up becomming something much more than that as I was just having to much fun developing it and learning new concepts of c++ to stop! So I created a trello board as a roadmap, and it very quickly grew in size and ambition, which is a good thing considering this is a learning project! There were many basic things in c++ that I didn't know how to do at the start of the project. The main one being understanding the c++ linker, and using libraries to aid my development.
@@ -15,10 +13,7 @@ Firefly Engine is a personal project for me that was intended to be a small intr
  - A resource management system
    * split into engine resources and project resources
  - A basic scene system (WIP)
-<<<<<<< HEAD
-=======
  - Json serialization
->>>>>>> 691a5ee8edbfa035634f587a67a5c63e8411f552
  - A fairly robust editor ui
    * Resources
    * Scene Heirarchy (WIP)
@@ -48,8 +43,6 @@ Firefly Engine is a personal project for me that was intended to be a small intr
   Entity* e = EngineData::CurrentScene().FindEntity("entityId");
  ```
 
-<<<<<<< HEAD
-
 
 ### Projects
 
@@ -57,7 +50,7 @@ Firefly Engine is a personal project for me that was intended to be a small intr
  1. git clone https://github.com/rfmineguy/opengl-engine
  2. cd opengl-engine
  3. sh build.sh
-=======
+ 
 ### Projects
  - WIP
 
@@ -73,7 +66,6 @@ Firefly Engine is a personal project for me that was intended to be a small intr
  * Be sure to reclone this repo when I update it (versions are NOT guaranteed to be compatible with another version)
    + I don't recommend even doing this given how limited of an application this is in its current state
  * I'll do my best to make sure existing projects remain compatible, but once again there is no guarantee that this will be the case
->>>>>>> 691a5ee8edbfa035634f587a67a5c63e8411f552
 
 ## Build Info
  * Tested & working on Linux (Manjaro Arch)

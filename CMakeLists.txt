@@ -22,7 +22,7 @@ set(SOURCES
     src/render_data/geometry.cpp
     src/render_data/texture.cpp
     src/render_data/textureAtlas.cpp
-    
+
     src/renderer/basicRenderer2d.cpp
     src/renderer/orthoCamera.cpp
     src/renderer/framebuffer.cpp

@@ -46,7 +46,7 @@ Firefly Engine is a personal project for me that was intended to be a small intr
 
 ### Projects
 
-## Build Instructions
+## Build Instructions (There are no precompiled binaries at the moment, but they are planned)
  1. git clone https://github.com/rfmineguy/opengl-engine
    - To build the **Editor** *cd opengl-engine/Editor/*
    - To build the **Runtime** *cd opengl-engine/Runtime/*

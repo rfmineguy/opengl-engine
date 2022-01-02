@@ -28,6 +28,7 @@ public:
     bool DestroyEntity(const std::string& id);
 
     SceneState State() { return state; }
+    FrameBuffer& GetFrameBuffer() { return frameBuffer; }
     
 private:
     SceneState state;

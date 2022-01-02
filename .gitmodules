@@ -21,3 +21,6 @@
 [submodule "vendor/ImGuizmo"]
 	path = vendor/ImGuizmo
 	url = https://github.com/CedricGuillemet/ImGuizmo
+[submodule "vendor/nfd-extended"]
+	path = vendor/nfd-extended
+	url = https://github.com/btzy/nativefiledialog-extended

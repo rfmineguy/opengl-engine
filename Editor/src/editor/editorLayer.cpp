@@ -1,4 +1,5 @@
 #include "editorLayer.h"
+#include "util/resourceManager.h"
 #include "imgui.h"
 
 namespace Firefly {
@@ -14,10 +15,20 @@ EditorLayer::EditorLayer() {
     //io.ConfigDockingWithShift = true;
        
     LOG_DEBUG("Initialized ImGuiLayer");
+
+    LoadEditorResources();
 }
 
-EditorLayer::~EditorLayer() {
+EditorLayer::~EditorLayer() {}
 
+void EditorLayer::LoadEditorResources() {
+    ResourceManager::LoadEngineResource<Texture>("folder_icon", "../res/textures/folder.png");
+    ResourceManager::LoadEngineResource<Texture>("txt_file_icon", "../res/textures/txt_file.png");
+    ResourceManager::LoadEngineResource<Texture>("move_icon", "../res/textures/move.png");
+    ResourceManager::LoadEngineResource<Texture>("play_icon", "../res/textures/play.png");
+    ResourceManager::LoadEngineResource<Texture>("stop_icon", "../res/textures/stop.png");
+
+    LOG_DEBUG("Finished loading editor resources");
 }
 
 void EditorLayer::Update() {
@@ -40,6 +51,8 @@ void EditorLayer::ImGuiRender() {
     scriptEditorPanel.Draw();
     sceneHeirarchyPanel.Draw();
     fileManagerPanel.Draw();
+    resourcesPanel.Draw();
+    logPanel.Draw();
     EndDockspace();
 
     ImGui::ShowDemoWindow();

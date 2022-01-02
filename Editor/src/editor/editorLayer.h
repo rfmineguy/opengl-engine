@@ -15,12 +15,15 @@
 #include "imguiScriptEditorPanel.hpp"
 #include "imguiSceneHeirarchyPanel.hpp"
 #include "imguiFileManagerPanel.hpp"
+#include "imguiResourcesPanel.hpp"
+#include "imguiLogPanel.hpp"
 
 namespace Firefly {
 class EditorLayer {
 public:
     EditorLayer();
     ~EditorLayer();
+    void LoadEditorResources();
     void Update();
     void ImGuiRender();
 
@@ -87,5 +90,7 @@ private:
     ImGuiScriptEditorPanel scriptEditorPanel;
     ImGuiSceneHeirarchyPanel sceneHeirarchyPanel;
     ImGuiFileManagerPanel fileManagerPanel;
+    ImGuiResourcesPanel resourcesPanel;
+    ImGuiLogPanel logPanel;
 };
 }

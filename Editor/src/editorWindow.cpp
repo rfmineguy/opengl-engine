@@ -33,6 +33,10 @@ void EditorWindow::Update() {
             glClear(GL_COLOR_BUFFER_BIT);
             editorLayer->Update();
             editorLayer->ImGuiRender();
+
+            if (WinData.shouldClose) {
+                glfwSetWindowShouldClose(window, true);
+            }
         }
         if (editorLayer) {
             editorLayer->Cleanup();

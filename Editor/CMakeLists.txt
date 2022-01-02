@@ -18,7 +18,7 @@ add_subdirectory(../Core "${CMAKE_CURRENT_BINARY_DIR}/Core")
 add_subdirectory(../vendor/imgui "${CMAKE_CURRENT_BINARY_DIR}/imgui")
 add_subdirectory(../vendor/imgui_file_dialog "${CMAKE_CURRENT_BINARY_DIR}/imgui_file_dialog")
 add_subdirectory(../vendor/ImGuizmo "${CMAKE_CURRENT_BINARY_DIR}/ImGuizmo")
-
+add_subdirectory(../vendor/nfd-extended "${CMAKE_CURRENT_BINARY_DIR}/nfd-extended")
 include_directories (FireflyEditor
     src/
     ../vendor/
@@ -39,4 +39,6 @@ target_link_libraries( FireflyEditor
     EnTT::EnTT
     spdlog::spdlog
     nlohmann_json
+    nfd
+    #nativefiledialog-extended
     )

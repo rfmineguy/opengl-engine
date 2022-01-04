@@ -1,11 +1,9 @@
 # About
 My Website : https://rfmineguy.github.io/rfmineguy-website/
 
-<<<<<<< HEAD
 =======
 This README is does not fully document the engine, and there is no proper documentation generated for it. I don't recommend using this for anything serious for multiple reasons.<br> The main one being that it is no where close to being in a fully stable state, and doesn't have a runtime.
 
->>>>>>> 691a5ee8edbfa035634f587a67a5c63e8411f552
 # Firefly Engine
 
 Firefly Engine is a personal project for me that was intended to be a small introduction to both opengl and c++. It ended up becomming something much more than that as I was just having to much fun developing it and learning new concepts of c++ to stop! So I created a trello board as a roadmap, and it very quickly grew in size and ambition, which is a good thing considering this is a learning project! There were many basic things in c++ that I didn't know how to do at the start of the project. The main one being understanding the c++ linker, and using libraries to aid my development.
@@ -15,10 +13,8 @@ Firefly Engine is a personal project for me that was intended to be a small intr
  - A resource management system
    * split into engine resources and project resources
  - A basic scene system (WIP)
-<<<<<<< HEAD
 =======
  - Json serialization
->>>>>>> 691a5ee8edbfa035634f587a67a5c63e8411f552
  - A fairly robust editor ui
    * Resources
    * Scene Heirarchy (WIP)
@@ -48,15 +44,16 @@ Firefly Engine is a personal project for me that was intended to be a small intr
   Entity* e = EngineData::CurrentScene().FindEntity("entityId");
  ```
 
-<<<<<<< HEAD
-
-
 ### Projects
 
-## Build Instructions
+## Build Instructions (There are no precompiled binaries at the moment, but they are planned)
  1. git clone https://github.com/rfmineguy/opengl-engine
- 2. cd opengl-engine
- 3. sh build.sh
+   - To build the **Editor** *cd opengl-engine/Editor/*
+   - To build the **Runtime** *cd opengl-engine/Runtime/*
+   - To build the **Core** *cd opengl-engine/Core/*
+ 2. sh build.sh
+ 3. It will take some time, but will automatically open the application for you when its done building
+
 =======
 ### Projects
  - WIP

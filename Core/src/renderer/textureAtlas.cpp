@@ -81,7 +81,7 @@ void TextureAtlas::ParseAtlas() {
     int currentLine = 0;
     std::ifstream ifs(this->path);
     if (ifs.fail()) {
-        LOG_ERROR("Failed to open file {0}", this->path);
+        LOG_ERROR("Failed to open file {0}", this->path.string().c_str());
     }
     else {
         std::string s;
@@ -105,7 +105,7 @@ void TextureAtlas::ParseAtlas() {
          *  srcImageName = "texture.png"
          *  sent -> "testAtlas/texture.png"
          */
-        int loadStatus = CleanAndChange(srcImageName, true);
+        int loadStatus = CleanAndChange(this->path.parent_path() / srcImageName);
         if (loadStatus != 0) {
             LOG_ERROR("Failed to load texture {0}", srcImageName);
         }

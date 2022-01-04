@@ -5,6 +5,13 @@
 #include "editorState.h"
 #include <nfd.h>
 
+/*
+ * This library does not explicitly dispatch calls to the UI thread. 
+ * This may lead to crashes if you call functions from other threads when
+ * the platform does not support it (e.g. MacOS). Users are generally expected 
+ * to call NFDe from an appropriate UI thread (i.e. the thread performing the UI
+ * event loop).
+ */
 namespace Firefly {
 struct ImGuiMenuPanel {
     ImGuiMenuPanel() {
@@ -21,28 +28,39 @@ struct ImGuiMenuPanel {
                 if (ImGui::MenuItem("New Project"))   {
                     LOG_INFO("Setting up new project");
                 }
+                if (!EditorState::CurrentProject().savedToDisk) 
+                    ImGui::BeginDisabled();
+
+                if (ImGui::MenuItem("Save Project WIP")) {
+                    LOG_INFO("Project saving WIP");
+                }
+                ImGui::EndDisabled();
+
                 if (ImGui::MenuItem("Save Project As")) {
                     nfdchar_t* path;
                     nfdresult_t result;
                     nfdfilteritem_t FilterItem[1] = { { "Project", "ffproject" } };
                     result = NFD_SaveDialog(&path, FilterItem, 1, NULL, "untitled");
-                    //result = NFD_OpenDialog(&path, FilterItem, 2, NULL);
                     if (result == NFD_OKAY) {
                         LOG_INFO("Saved file (WIP) : {}", path);
+                        if (EditorState::CurrentProject().Initialize(path)) {
+                            LOG_DEBUG("Intialized project directory");
+                        }
+                        else {
+                            LOG_CRITICAL("Failed to initialize project directory");
+                        }
                         NFD_FreePath(path);
-                    }
-                    else if (result == NFD_CANCEL) {
-                        LOG_INFO("User pressed cancel.");
-                    }
-                    else {
-                        LOG_ERROR("%s", NFD_GetError());
                     }
                 }
                 if (ImGui::MenuItem("Open Project"))  {
                     LOG_INFO("Open project");
                     nfdchar_t* path;
                     nfdresult_t result;
-
+                    nfdfilteritem_t FilterItem[1] = { { "Project", "ffproject" } };
+                    result = NFD_PickFolder(&path, NULL);
+                    if (result == NFD_OKAY) {
+                        EditorState::CurrentProject().AttemptOpenProject(path);
+                    }
                 }
                 if (ImGui::MenuItem("New Scene"))   {
                     LOG_INFO("New scene");
@@ -67,8 +85,5 @@ struct ImGuiMenuPanel {
             ImGui::EndMenuBar();
         }
     }
-
-    void HandleOpenFileDialog() {}
-    void HandleSaveFileDialog() {}
 };
 }

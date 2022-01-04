@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <filesystem>
 
 #include "../../vendor/stb/stb_image.h"
 #include "glad/glad.h"
@@ -22,7 +23,8 @@ public:
     Texture& operator=(Texture&& other);
 
     ~Texture();
-    int CleanAndChange(std::string filepath, bool isAtlas = false);
+    int CleanAndChange(const std::string& tag, bool isAtlas);
+    int CleanAndChange(const std::string& path);
     int Load(const char* filepath);
     void Bind(int offset = 0);
     void Unbind();
@@ -32,7 +34,8 @@ public:
     unsigned int textureHandle;
     bool isLoaded = false;
 
-    std::string tag, path;
+    std::string tag;
+    std::filesystem::path path;
 private:
     unsigned char* data;
 };

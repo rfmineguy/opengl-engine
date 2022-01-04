@@ -27,8 +27,11 @@ public:
     Entity* FindEntity(const std::string& id);
     bool DestroyEntity(const std::string& id);
 
+
+
     SceneState State() { return state; }
     FrameBuffer& GetFrameBuffer() { return frameBuffer; }
+    int Size() { return uEntities.size(); }
     
 private:
     SceneState state;
@@ -45,6 +48,7 @@ friend class Engine;
 friend class ImGuiSceneHeirarchy;
 friend class ImGuiViewportPanel;
 friend class ImGuiDebugPanel;
+friend class ImGuiSceneHeirarchyPanel;
 };
 
 }

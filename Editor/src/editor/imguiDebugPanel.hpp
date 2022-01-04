@@ -3,7 +3,9 @@
 #include "core/engine/engineData.h"
 #include "window/inputData.h"
 #include "window/windowData.h"
+#include "editorState.h"
 
+namespace Firefly {
 struct ImGuiDebugPanel {
     void Draw() {
         ImGui::Begin("Debug");
@@ -16,8 +18,9 @@ struct ImGuiDebugPanel {
         }
         ImGui::Dummy({0, 20});
         if (ImGui::TreeNode("File Structure Information")) {
-            ImGui::Text("Current Directory {%s}", Firefly::EngineData::Get().state.currentDir.c_str());
-            ImGui::Text("Project Root {%s}", Firefly::EngineData::Get().state.openProjectRoot.c_str());           
+            ImGui::Text("Project File{%s}", EditorState::CurrentProject().rootPath.c_str());
+            ImGui::Text("Open Path{%s}", EditorState::CurrentProject().openPath.c_str());
+            //ImGui::Text("Project Root {%s}", Firefly::EngineData::Get().state.openProjectRoot.c_str());           
             ImGui::TreePop();
         }
         ImGui::Dummy({0, 20});
@@ -28,3 +31,4 @@ struct ImGuiDebugPanel {
         ImGui::End();
     }
 };
+}

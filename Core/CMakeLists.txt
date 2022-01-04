@@ -5,7 +5,7 @@ set (CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set (CMAKE_CXX_STANDARD 17)
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -pthread")
 
-file (COPY res DESTINATION ${CMAKE_BINARY_DIR})
+#file (COPY res DESTINATION ${CMAKE_BINARY_DIR})
 
 set (SOURCES
     src/renderer/shader.cpp

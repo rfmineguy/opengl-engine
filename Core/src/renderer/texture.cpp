@@ -55,7 +55,7 @@ Texture& Texture::operator=(Texture&& other) {
 }
 
 Texture::~Texture() {
-    LOG_WARN("Deleted texture [{0}]", path);
+    LOG_WARN("Deleted texture [{0}]", path.string().c_str());
     Unbind();
     glDeleteTextures(1, &textureHandle);
     data = nullptr;
@@ -71,7 +71,7 @@ Texture::~Texture() {
  * texture already in use @return 1
  */
 
-int Texture::CleanAndChange(std::string _tag, bool isAtlas) {
+int Texture::CleanAndChange(const std::string& _tag, bool isAtlas) {
     if (tag == _tag) {
         LOG_WARN("Texture already assigned to {0}", _tag);
         return 1;
@@ -82,6 +82,12 @@ int Texture::CleanAndChange(std::string _tag, bool isAtlas) {
     else {
         path = "res/textures/" + _tag;
     }
+    glDeleteTextures(1, &textureHandle);
+    return Load(path.c_str());
+}
+
+int Texture::CleanAndChange(const std::string& _path) {
+    path = _path;
     glDeleteTextures(1, &textureHandle);
     return Load(path.c_str());
 }

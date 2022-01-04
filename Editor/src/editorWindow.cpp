@@ -20,6 +20,7 @@ void EditorWindow::Create(const char* title, int w, int h) {
     WinData.windowHeight = h;
     WinData.resized = true;
     Input.mouseCaptured = false;
+
     LOG_INFO("Created the window.");
 }
 
@@ -52,4 +53,3 @@ void EditorWindow::Cleanup() {
     glfwTerminate();
 }
 }
-

@@ -19,16 +19,23 @@ EditorLayer::EditorLayer() {
     LoadEditorResources();
 }
 
-EditorLayer::~EditorLayer() {}
+EditorLayer::~EditorLayer() {
+    EditorState::Serialize();
+}
 
 void EditorLayer::LoadEditorResources() {
+    EditorState::Deserialize();
     ResourceManager::LoadEngineResource<Texture>("folder_icon", "../res/textures/folder.png");
     ResourceManager::LoadEngineResource<Texture>("txt_file_icon", "../res/textures/txt_file.png");
     ResourceManager::LoadEngineResource<Texture>("move_icon", "../res/textures/move.png");
     ResourceManager::LoadEngineResource<Texture>("play_icon", "../res/textures/play.png");
     ResourceManager::LoadEngineResource<Texture>("stop_icon", "../res/textures/stop.png");
 
+    ResourceManager::LoadProjectResource<TextureAtlas>("spritesheet", EditorState::CurrentProject().rootPath / "Atlases/testing.atlas");
+
     LOG_DEBUG("Finished loading editor resources");
+    EditorState::CurrentScene()->CreateEntity("Entity0");
+    EditorState::CurrentScene()->CreateEntity("Entity1");
 }
 
 void EditorLayer::Update() {
@@ -39,7 +46,7 @@ void EditorLayer::ImGuiRender() {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
-   
+  
     BeginDockspace();
     menuPanel.Draw();
     debugPanel.Draw();

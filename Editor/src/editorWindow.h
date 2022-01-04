@@ -26,7 +26,8 @@ struct WindowCallbacks {
         }
     }
     static void cursorCallback(GLFWwindow* window, double xpos, double ypos) {
-        
+        //Input.mouse.x = xpos;
+        //Input.mouse.y = ypos;
     }
     static void scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
         Input.scrollXOffset = xoffset;

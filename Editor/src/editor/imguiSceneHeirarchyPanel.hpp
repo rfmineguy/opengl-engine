@@ -36,7 +36,9 @@ struct ImGuiSceneHeirarchyPanel {
         bool opened = ImGui::TreeNodeEx(id.c_str(), flags);
         if (ImGui::IsItemClicked()) {
             LOG_DEBUG("Clicked {}", id.c_str());
-            if (id != "root") {
+
+            //ingore root, and any entity with 'cam' in its id
+            if (id != "root" && (id.find("cam") == std::string::npos)) {
                 EditorState::Get().selectionId = id;
                 EditorState::Get().selectionType = SelectionType::ENTITY;
             }

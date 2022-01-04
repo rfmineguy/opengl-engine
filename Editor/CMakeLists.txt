@@ -42,5 +42,4 @@ target_link_libraries( FireflyEditor
     spdlog::spdlog
     nlohmann_json
     nfd
-    #nativefiledialog-extended
     )

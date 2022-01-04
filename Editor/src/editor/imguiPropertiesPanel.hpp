@@ -1,6 +1,7 @@
 #pragma once
 #include "core/corepch.h"
 #include "core/engine/engineData.h"
+#include "imgui.h"
 #include "util/resourceManager.h"
 #include "imgui/imgui_stdlib.h"
 
@@ -93,6 +94,12 @@ struct ImGuiPropertiesPanel {
                 ImGui::TreePop();
             }
         }
+        if (entity->HasComponent<OrthoCameraTest>()) {
+            if (ImGui::TreeNode("OrthoCamera")) {
+                OrthoCameraTest& camera = entity->GetComponent<OrthoCameraTest>();
+                ImGui::TreePop();
+            }
+        }
         if (entity->HasComponent<Transform>()) {
             if (ImGui::TreeNode("Transform")) {
                 Transform& t = entity->GetComponent<Transform>();
@@ -149,8 +156,28 @@ struct ImGuiPropertiesPanel {
             }
         }
     }
-    void AddComponentWigdet(Entity* e) {
-
+    void AddComponentWigdet(Entity* entity) {
+        if (ImGui::Button("Add Component")) {
+            ImGui::OpenPopup("addcomponent-popup");
+        }
+        if (ImGui::IsPopupOpen("addcomponent-popup")) {
+            if (!entity->HasComponent<Identifier>()) {
+                entity->AddComponent<Identifier>("", "");
+            }
+            if (!entity->HasComponent<Transform>()) {
+                entity->AddComponent<Transform>(0, 0, 32, 32, 0);
+            }
+            if (!entity->HasComponent<Renderable>()) {
+                LOG_DEBUG("Adding renderable component isn't supported yet");
+            }
+            if (!entity->HasComponent<AnimatedRenderable>()) {
+                LOG_DEBUG("Adding renderable component isn't supported yet");
+            }
+            if (!entity->HasComponent<Script>()) {
+                entity->AddComponent<Script>("no script");
+            }
+            ImGui::EndPopup();
+        }
     }
 };
 }

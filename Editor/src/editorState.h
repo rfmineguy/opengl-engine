@@ -2,6 +2,7 @@
 #include "core/corepch.h"
 #include "core/serialization/json-serializable.h"
 #include "core/engine/scene.h"
+#include "renderer/framebuffer.h"
 #include "core/engine/engineData.h"
 #include <string>
 #include <filesystem>
@@ -139,9 +140,11 @@ private:
     Scene currentScene;
     std::string selectionId;
     SelectionType selectionType;
+    FrameBuffer viewportFramebuffer;
    
     friend class ImGuiResourcesPanel;
     friend class ImGuiSceneHeirarchyPanel;
     friend class ImGuiPropertiesPanel;
+    friend class ImGuiViewportPanel;
 };
 }

@@ -41,13 +41,23 @@ struct Transform {
 struct OrthoCameraTest {
     const glm::vec4 GetView();
     const glm::mat4 GetProj();
+    const glm::mat4 GetViewProj();
+
     void SetPos(glm::vec3 pos);
     void SetRotation(float rotation);
     void SetScale(float sx, float sy);
     void DeltaPos(float dx, float dy);
     void SetViewportSize(int width, int height);
+    
+    const glm::vec2 ScreenToWorld(const glm::vec2 mouseCoord);
+    const glm::vec2 WorldToScreen(const glm::vec2 worldCoord);
+    void UpdateProj(int width, int height);
 
-    glm::vec2 ScreenToWorld(const glm::vec2 mouseCoord);
+private:
+    void RecalculateView();
+
+private:
+    glm::mat4 view, proj, view_proj;
 };
 
 /* Identifier component

@@ -13,6 +13,12 @@ Scene::Scene() {
     root->GetComponent<Relationship>().isParent = true;
     root->GetComponent<Relationship>().level = 0;
     root->AddComponent<Identifier>("root", "root");
+
+    Entity* e = CreateEntity("Camera");
+    e->AddComponent<Relationship>(false, false, 0, "root");
+    e->AddComponent<Identifier>("cam-prim", "Primary Camera");
+    e->AddComponent<Transform>(0, 0, 1, 1, 0);
+    //e->AddComponent<OrthoCameraTest>();
 }
 
 Scene::~Scene() {
@@ -20,26 +26,34 @@ Scene::~Scene() {
 }
 
 void Scene::Draw() {
-    frameBuffer.Bind();
+    Draw(frameBuffer);
+}
+
+void Scene::Draw(FrameBuffer& fb) {
+    fb.Bind();
     glClearColor(0.7f, 0.7f, 0.7f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     
     for (const auto& entity : uEntities) {
-        Renderer2D::Draw(*entity.second.get(), cam);
+        OrthoCamera& primaryCam = Camera();
+        Renderer2D::Draw(*entity.second.get(), primaryCam);
     }
-
-    frameBuffer.Unbind();
+    fb.Unbind();
 }
 
 void Scene::Update(float dt) {
     if (state == SceneState::PLAYING && focused) {
-        cam.Movement();
-        glm::vec2 worldMouse = cam.ScreenToWorld(Input.mouse);
+        OrthoCamera& primaryCam = Camera();
+        primaryCam.Movement();
+        glm::vec2 worldMouse = primaryCam.ScreenToWorld(Input.mouse);
     }
 }
 
 void Scene::OnResize(int w, int h) {
+    OrthoCamera& primaryCam = Camera();
     frameBuffer.Resize(w, h);
+    primaryCam.UpdateProj(w, h);
+    glViewport(0, 0, w, h);
 }
 
 void Scene::Start() {
@@ -71,6 +85,19 @@ Entity* Scene::FindEntity(const std::string& id) {
     if (uEntities.find(id) != uEntities.end()) {
         return uEntities.at(id).get();
     }
+    return nullptr;
+}
+
+Entity* Scene::FindPrimaryCamera() {
+    for (auto& e: uEntities) {
+        Entity* entity = e.second.get();
+        if (entity->HasComponent<OrthoCameraTest>()) {
+            if (entity->GetComponent<Identifier>().id.find("cam") != std::string::npos) {
+                return entity;
+            }
+        }
+    }
+    LOG_WARN("No primary camera found");
     return nullptr;
 }
 

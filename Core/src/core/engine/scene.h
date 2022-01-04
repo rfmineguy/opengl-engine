@@ -17,6 +17,7 @@ public:
     Scene();
     ~Scene();
     void Draw();
+    void Draw(FrameBuffer& fb);
     void Update(float dt);
     void OnResize(int w, int h);
 
@@ -25,10 +26,10 @@ public:
 
     Entity* CreateEntity(const std::string& id);
     Entity* FindEntity(const std::string& id);
+    Entity* FindPrimaryCamera();
     bool DestroyEntity(const std::string& id);
 
-
-
+    OrthoCamera& Camera() { return cam; }
     SceneState State() { return state; }
     FrameBuffer& GetFrameBuffer() { return frameBuffer; }
     int Size() { return uEntities.size(); }

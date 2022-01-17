@@ -3,7 +3,7 @@
 
 int main() {
     Firefly::EditorWindow window;
-    window.Create("Editor (WIP)", 1920, 1000);
+    window.Create("Editor (WIP)", 1920, 1080);
     window.Update();
     window.Cleanup();
 }

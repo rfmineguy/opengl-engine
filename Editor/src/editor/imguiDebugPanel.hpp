@@ -1,6 +1,8 @@
 #pragma once
 #include "core/corepch.h"
 #include "core/engine/engineData.h"
+#include "glm/gtc/type_ptr.hpp"
+#include "imgui.h"
 #include "window/inputData.h"
 #include "window/windowData.h"
 #include "editorState.h"
@@ -14,6 +16,8 @@ struct ImGuiDebugPanel {
             ImGui::Text("Mouse Position {%0.4f %0.4f}", Input.mouse.x, Input.mouse.y);
             ImGui::Text("Viewport Size {%d %d}", Firefly::EngineData::CurrentScene().GetFrameBuffer().GetWidth(), Firefly::EngineData::CurrentScene().GetFrameBuffer().GetHeight());
             ImGui::Text("ImGui Scale {%0.4f %0.4f}", WinData.xScale, WinData.yScale);
+            ImGui::Separator();
+            
             ImGui::TreePop();
         }
         ImGui::Dummy({0, 20});
@@ -25,7 +29,7 @@ struct ImGuiDebugPanel {
         }
         ImGui::Dummy({0, 20});
         if (ImGui::TreeNode("Preferences")) {
-            ImGui::Text("ResourcePanel: ");
+            ImGui::ColorEdit4("Clear Color", glm::value_ptr(EditorState::Get().clearColor));
             ImGui::TreePop();
         }
         ImGui::End();

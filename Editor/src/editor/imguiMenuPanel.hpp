@@ -39,8 +39,8 @@ struct ImGuiMenuPanel {
                 if (ImGui::MenuItem("Save Project As")) {
                     nfdchar_t* path;
                     nfdresult_t result;
-                    nfdfilteritem_t FilterItem[1] = { { "Project", "ffproject" } };
-                    result = NFD_SaveDialog(&path, FilterItem, 1, NULL, "untitled");
+                    nfdfilteritem_t FilterItem[1] = { { "Project", "" } };
+                    result = NFD_SaveDialog(&path, FilterItem, 1, NULL, "");
                     if (result == NFD_OKAY) {
                         LOG_INFO("Saved file (WIP) : {}", path);
                         if (EditorState::CurrentProject().Initialize(path)) {
@@ -56,7 +56,7 @@ struct ImGuiMenuPanel {
                     LOG_INFO("Open project");
                     nfdchar_t* path;
                     nfdresult_t result;
-                    nfdfilteritem_t FilterItem[1] = { { "Project", "ffproject" } };
+                    nfdfilteritem_t FilterItem[1] = { { "Project", "" } };
                     result = NFD_PickFolder(&path, NULL);
                     if (result == NFD_OKAY) {
                         EditorState::CurrentProject().AttemptOpenProject(path);

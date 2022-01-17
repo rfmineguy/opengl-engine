@@ -150,7 +150,7 @@ struct ImGuiPropertiesPanel {
         if (entity->HasComponent<SpriteRenderer>()) {
             if (ImGui::TreeNode("SpriteRenderer")) {
                 SpriteRenderer& r = entity->GetComponent<SpriteRenderer>();
-                ImGui::Text("Source Resource ID %s", r.resourceId.c_str());
+                ImGui::Text("Source Resource ID %s", r.texture->atlasName.c_str());
                 ImGui::Text("AtlasSubRegionName %s", r.atlasSubRegionName.c_str());
                 ImGui::TreePop();    
             }

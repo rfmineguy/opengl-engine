@@ -4,7 +4,7 @@
 #include "editorState.h"
 #include "imgui.h"
 
-using namespace Firefly;
+namespace Firefly {
 struct ImGuiFileManagerPanel {
     void Draw() {
         ImGui::Begin("File Manager");
@@ -13,7 +13,6 @@ struct ImGuiFileManagerPanel {
             float w = ImGui::GetWindowWidth();
             float h = ImGui::GetWindowHeight();
             ImGui::SetCursorPos({w/2 - 20, h/2});
-            LOG_DEBUG("Root path empty");
             ImGui::Text("No project directory selected");
             ImGui::End();
             return;
@@ -50,6 +49,10 @@ struct ImGuiFileManagerPanel {
                         ImGui::Text("%s", filenameStr.c_str());
                     }
                     else {
+                        if (ImGui::IsMouseClicked(1)) {
+                            LOG_DEBUG("Right clicked");
+                        }
+
                         if (ImGui::ImageButton((void*)(intptr_t) fileTex->textureHandle, ImVec2{128, 128}, ImVec2{0, 1}, ImVec2{1, 0})) {
                             LOG_DEBUG("Open file (WIP)");
                         }
@@ -67,3 +70,4 @@ struct ImGuiFileManagerPanel {
         ImGui::End();
     }
 };
+}

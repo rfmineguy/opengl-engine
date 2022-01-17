@@ -4,6 +4,7 @@
 #include "core/engine/scene.h"
 #include "renderer/framebuffer.h"
 #include "core/engine/engineData.h"
+#include "util/resourceManager.h"
 #include <string>
 #include <filesystem>
 #include <fstream>
@@ -13,23 +14,26 @@ struct Project : JsonSerializable {
     std::filesystem::path rootPath = "";
     std::filesystem::path openPath = "";
     bool savedToDisk = false;
+    bool isOpen = false;
 
     void SaveProject() {
-        if (savedToDisk) {
-            //SAVE
-            //overwrite data in project dir
-        }
-        else {
-            //NEW
-            //create and intitialize the project dir
-        }
     }
 
-    bool AttemptOpenProject(const char* path) {
+    bool AttemptOpenProject(std::filesystem::path path) {
         if (Exists(path)) {
             rootPath = path;
             openPath = path;
+
+            LOG_INFO("Opening {}", path.c_str());
+            std::fstream fs(path.append(".ffproj"));
+            if (fs.fail()) {
+                LOG_CRITICAL("Failed to open .ffproj");
+            }
+            json root;
+            fs >> root;
+            Deserialize(root);
             LOG_INFO("Opened project");
+            isOpen = true;
             return true;
         }
         LOG_CRITICAL("Directory not a project");
@@ -64,24 +68,31 @@ struct Project : JsonSerializable {
             fs.close();
             return false;
         }
+        json root;
+        Serialize(root);
+        fs << root;
         fs.close();
         savedToDisk = true;
         return status;
     }
 
-    bool Exists(const char* filepath) {
+    bool Exists(std::filesystem::path filepath) {
         return std::filesystem::exists(filepath);
     }
 
     void Serialize(json& value) override {
         value["open-project"]["root-path"] = rootPath;
         value["open-project"]["open-path"] = openPath;
-        LOG_DEBUG("Serialized Project");
+
+        json loaded_resources = ResourceManager::Get().Serialize();
+        value["loaded_resources"] = loaded_resources;
     }
-    
     void Deserialize(json& value) override {
+        LOG_DEBUG("Deserializer");
         rootPath = value["open-project"]["root-path"];
         openPath = value["open-project"]["open-path"];
+
+        ResourceManager::Get().Deserialize(value["loaded_resources"], rootPath);
         LOG_DEBUG("Deserialized Project");
     }
 };
@@ -131,20 +142,23 @@ public:
         fs.close();
         
         LOG_DEBUG("Begin EditorState Deserialization");
-        CurrentProject().Deserialize(root);
         LOG_DEBUG("End EditorState Deserialization -> Successful");
     }
     
 private:
     Project currentProject;
+    int currentImGuizmoOperation;
     Scene currentScene;
     std::string selectionId;
     SelectionType selectionType;
+
+    glm::vec4 clearColor;
     FrameBuffer viewportFramebuffer;
-   
+  
+    friend class ImGuiPropertiesPanel;
     friend class ImGuiResourcesPanel;
     friend class ImGuiSceneHeirarchyPanel;
-    friend class ImGuiPropertiesPanel;
+    friend class ImGuiDebugPanel;
     friend class ImGuiViewportPanel;
 };
 }

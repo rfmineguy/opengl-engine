@@ -30,12 +30,14 @@ struct ImGuiViewportPanel {
         //test framebuffer
         FrameBuffer& fb = EditorState::Get().viewportFramebuffer;
         Scene* scene = EditorState::CurrentScene();
+        glm::vec4& clearColor = EditorState::Get().clearColor;
+        scene->SetClearColor(clearColor);
         scene->Draw(fb);
-        scene->SetClearColor(EditorState::Get().clearColor);
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2 {0, 0});
         ImGui::Begin("Viewport");
-        
+       
+        ImGui::Text("%0.4f %0.4f %0.4f %0.4f", clearColor.r, clearColor.g, clearColor.b, clearColor.a);
         ImVec2 vMin = ImGui::GetWindowContentRegionMin();
         ImVec2 vMax = ImGui::GetWindowContentRegionMax();
         ImVec2 vOffset = ImGui::GetWindowPos();

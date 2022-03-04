@@ -19,7 +19,7 @@ build_macos() {
     else
         cmake .. -G "Unix Makefiles" -DGEN_APP_BUNDLE=off -DCMAKE_OSX_64=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_EXPORT_COMPILE_COMMANDS=on
         echo "Building normal macos executable. Available from build/FireflyEditor"
-        cmake --build
+        cmake --build .
         ./FireflyEditor
     fi
 }
@@ -45,7 +45,6 @@ if [[ "$OSTYPE" == "darwin"* ]] ;then
         build_macos 1
     elif [[ $1 == "-normal"* ]] ; then
         build_macos 0 
-        ./FireflyEditor
     else
         echo "Invalid flag used. -app and -normal accepted"
     fi

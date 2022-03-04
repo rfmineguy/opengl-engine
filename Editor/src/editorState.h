@@ -152,7 +152,7 @@ private:
     std::string selectionId;
     SelectionType selectionType;
 
-    glm::vec4 clearColor;
+    glm::vec4 clearColor = glm::vec4(148 / 255.f, 148 / 255.f, 148 / 255.f, 1.0f);
     FrameBuffer viewportFramebuffer;
   
     friend class ImGuiPropertiesPanel;

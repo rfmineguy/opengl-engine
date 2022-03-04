@@ -161,7 +161,7 @@ Region TextureAtlas::SubRegion(int col, int row) {
 
 Region TextureAtlas::GetRegion(std::string name) {
     if (map.find(name) == map.end()) {
-        LOG_ERROR("{0} is an invalid region", name);
+        //LOG_ERROR("{0} is an invalid region", name);
         return {};
     }
     return map.at(name);

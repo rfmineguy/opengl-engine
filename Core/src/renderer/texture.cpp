@@ -16,7 +16,6 @@ Texture::Texture(Texture&& other) {
     mHeight = other.mHeight;
     mChannels = other.mChannels;
     textureHandle = other.textureHandle;
-    isLoaded = other.isLoaded;
     tag = other.tag;
     path = other.path;
     data = other.data;
@@ -25,7 +24,6 @@ Texture::Texture(Texture&& other) {
     other.mHeight = 0;
     other.mChannels = 0;
     other.textureHandle = 0; //not sure. but i think this is right
-    other.isLoaded = false;
     other.tag = "";
     other.path = "";
     other.data = nullptr;
@@ -37,7 +35,6 @@ Texture& Texture::operator=(Texture&& other) {
     mHeight = other.mHeight;
     mChannels = other.mChannels;
     textureHandle = other.textureHandle;
-    isLoaded = other.isLoaded;
     tag = other.tag;
     path = other.path;
     data = other.data;
@@ -46,7 +43,6 @@ Texture& Texture::operator=(Texture&& other) {
     other.mHeight = 0;
     other.mChannels = 0;
     other.textureHandle = 0; //not sure. but i think this is right
-    other.isLoaded = false;
     other.tag = "";
     other.path = "";
     other.data = nullptr;
@@ -61,11 +57,11 @@ Texture::~Texture() {
     data = nullptr;
 }
 
-//  atlas = true
-//    tag -> folder name + "/" + image name<.png>
-//  atlas = false
-//    tag -> image name<.png>
 /*
+ * atlas = true
+ *   tag -> folder name + "/" + image name<.png>
+ * atlas = false
+ *   tag -> image name<.png>
  * error loading texture  @return -1
  * no errors              @return 0
  * texture already in use @return 1
@@ -94,6 +90,7 @@ int Texture::CleanAndChange(const std::string& _path) {
 
 //filepath should be relative to 'res/textures/'
 int Texture::Load(const char* filepath) {
+    glDeleteTextures(1, &textureHandle);
     glGenTextures(1, &textureHandle);
     glBindTexture(GL_TEXTURE_2D, textureHandle);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -113,18 +110,18 @@ int Texture::Load(const char* filepath) {
             glGenerateMipmap(GL_TEXTURE_2D);
         }
         glGenerateMipmap(GL_TEXTURE_2D);
-        LOG_INFO("Loaded image [{0} x {1} - channels [{2}]]", mWidth, mHeight, mChannels);
+        LOG_INFO("Loaded image [{0} x {1} - channels [{2}]] {3} {4}", mWidth, mHeight, mChannels, textureHandle, path.c_str());
     }
     else {
         LOG_CRITICAL("Failed to load texture '{0}'", fullPath);
         return -1;
     }
     stbi_image_free(data);
-    isLoaded = true;
     return 0;
 }
 
 void Texture::Bind(int offset) {
+    //LOG_DEBUG("Binding texture {}", path.c_str());
     glActiveTexture(GL_TEXTURE0 + offset);
     glBindTexture(GL_TEXTURE_2D, textureHandle);
 }

@@ -10,7 +10,7 @@ public:
     OrthoCamera();
     ~OrthoCamera();
     void Movement();
-    const glm::mat4 GetView() const { return view; }
+    glm::mat4& GetView() { return view; }
     const glm::mat4 GetProj() const { return projection; }
     
     void SetPos(glm::vec3 pos) { camPos = pos; RecalculateView(); }

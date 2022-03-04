@@ -1,7 +1,12 @@
 #pragma once
 #include "../corepch.h"
+
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/quaternion.hpp>
+
 #include "renderer/region.h"
+#include "renderer/texture.h"
 #include "renderer/textureAtlas.h"
 #include "entt/entity/entity.hpp"
 
@@ -12,8 +17,9 @@ struct Transform {
     glm::mat4 transform;
     glm::vec3 position;
     glm::vec3 scale;
-    float rotation; 
+    float rotation;
 
+    Transform() = default;
     Transform(float x, float y, float xscale, float yscale, float _rotation) {
         position = glm::vec3(x, y, 0);
         scale = glm::vec3(xscale, yscale, 1);
@@ -25,12 +31,20 @@ struct Transform {
         scale = _scale;
         rotation = _rotation;
     }
+    /*
+    glm::mat4 CalcModelMatrix() {
+        glm::mat4 model(1.0);
+        model = glm::translate(model, position);
+        model = glm::translate(model, glm::vec3(0.5f, 0.5f, 0.0f));
+        model = glm::scale(model, scale);
+        model = glm::rotate(model, glm::radians(rotation), glm::vec3(0, 0, 1));
+        model = glm::translate(model, -glm::vec3(0.5f, 0.5f, 0.5f));
+        transform = model;
+        return model;
+    }*/
 
-    void Print() {
-        printf("pos {%0.4f %0.4f}, scale {%0.4f %0.4f %0.4f}, rot {%0.4f}\n",
-                position.x, position.y,
-                scale.x, scale.y, scale.z,
-                rotation);
+    glm::mat4 CalcModelMatrix() {
+        return glm::mat4(1.0);
     }
 };
 
@@ -108,11 +122,11 @@ struct Script {
 };
 
 struct SpriteRenderer {
-    std::string resourceId;
+    bool isSingleImage;
+    Firefly::TextureAtlas* texture;
+    glm::vec4 colorTint;
+
     std::string atlasSubRegionName;
-    
-    void Draw() {
-    }
 };
 
 struct Relationship {

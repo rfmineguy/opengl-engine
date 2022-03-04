@@ -41,8 +41,9 @@ private:
     int GetLocation(const char* name);
 
 //Member variables
-private:
+public:
     std::string path;
+private:
     std::string vertPath;
     std::string fragPath;
     std::string vertexSource;

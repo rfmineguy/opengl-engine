@@ -21,6 +21,8 @@ public:
     void Update(float dt);
     void OnResize(int w, int h);
 
+    void SetClearColor(const glm::vec4& color) { clearColor = color; };
+
     void Start();
     void Stop();
 
@@ -41,6 +43,7 @@ private:
     entt::registry reg;
     OrthoCamera cam;
     FrameBuffer frameBuffer;
+    glm::vec4 clearColor = glm::vec4(0.1f, 0.7f, 0.7f, 1.0f);
 
     std::unique_ptr<Entity> root;
     std::unordered_map<std::string, std::unique_ptr<Entity>> uEntities;

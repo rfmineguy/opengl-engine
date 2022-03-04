@@ -13,10 +13,15 @@ set (SOURCES
     src/renderer/textureAtlas.cpp
     src/util/resourceManager.h
     src/renderer/geometry.cpp
+    src/renderer/renderer2D_V2.h
+    src/renderer/renderer2D_v2.cpp
     src/renderer/renderer2D.h
     src/renderer/orthoCamera.cpp
     src/renderer/framebuffer.cpp
 
+   src/primitives/quad.cpp
+
+    src/util/stringUtil.h
     src/util/geometryUtil.hpp
     src/util/stringUtil.h
     src/util/mathUtil.h

@@ -84,7 +84,7 @@ void Shader::CleanAndChange(std::string _tag, bool first) {
 }
 
 void Shader::Init() {
-    LOG_INFO("Initializing Shader {}", tag);
+    LOG_INFO("Initializing Shader {}, path={}", tag, path);
     readFile(vertPath, vertexSource);       //fileUtil.h
     readFile(fragPath, fragmentSource);     // -
     
@@ -101,7 +101,7 @@ void Shader::Init() {
     glGetShaderiv(vertexHandle, GL_COMPILE_STATUS, &success);
     if (!success) {
         glGetShaderInfoLog(vertexHandle, 512, NULL, infoLog);
-        LOG_ERROR("Vertex Shader compilation failed");
+        LOG_ERROR("Vertex Shader compilation failed {}", infoLog);
     } else {
         LOG_INFO("Vertex Shader compilation succeeded");
     }
@@ -115,7 +115,7 @@ void Shader::Init() {
     glGetShaderiv(fragmentHandle, GL_COMPILE_STATUS, &success);
     if (!success) {
         glGetShaderInfoLog(vertexHandle, 512, NULL, infoLog);
-        LOG_ERROR("Fragment Shader compilation failed");
+        LOG_ERROR("Fragment Shader compilation failed {}", infoLog);
     } else {
         LOG_INFO("Frament Shader compilation succeeded"); 
     }

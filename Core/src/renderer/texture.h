@@ -32,7 +32,6 @@ public:
 public:
     int mWidth, mHeight, mChannels;
     unsigned int textureHandle;
-    bool isLoaded = false;
 
     std::string tag;
     std::filesystem::path path;

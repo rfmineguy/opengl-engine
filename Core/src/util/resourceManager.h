@@ -10,6 +10,7 @@
 
 //SINGLETON CLASS
 namespace Firefly {
+
 class ResourceManager {
 public:
     static ResourceManager& Get() {
@@ -56,22 +57,25 @@ public:
 private:
     template <typename T>
     bool LoadProjectResourceImpl(const std::string& name, const std::string& path) {
+        bool status = false;
         std::string absPath = EngineData::Get().state.openProjectRoot;
         absPath += path;
         if (std::is_same<T, Texture>() && uTextures.count(name) == 0) {
             uTextures.emplace(name, std::make_unique<Texture>(name, absPath));
-            return true;
+            status = true;
         }
         if (std::is_same<T, TextureAtlas>() && uTextureAtlases.count(name) == 0) {
             uTextureAtlases.emplace(name, std::make_unique<TextureAtlas>(name, absPath));
-            return true;
+            status = true;
         }
         if (std::is_same<T, Shader>() && uShaders.count(name) == 0) {
             uShaders.emplace(name, std::make_unique<Shader>(name, absPath));
-            return true;
+            status = true;
         }
-        LOG_CRITICAL("Failed to load resource {}", name.c_str());
-        return false;
+        if (!status) {
+            LOG_CRITICAL("Failed to load resource {}", name.c_str());
+        }
+        return status;
     }
 
     template <typename T>
@@ -93,20 +97,23 @@ private:
 
     template <typename T>
     bool LoadEngineResourceImpl(const std::string& name, const std::string& path) {
+        bool status = false;
         if (std::is_same<T, Texture>() && uEngineTextures.count(name) == 0) {
             uEngineTextures.emplace(name, std::make_unique<Texture>(name, path));
-            return true;
+            status = true;
         }
         if (std::is_same<T, TextureAtlas>() && uEngineTextureAtlases.count(name) == 0) {
             uEngineTextureAtlases.emplace(name, std::make_unique<TextureAtlas>(name, path));
-            return true;
+            status = true;
         }
         if (std::is_same<T, Shader>() && uEngineShaders.count(name) == 0) {
             uEngineShaders.emplace(name, std::make_unique<Shader>(name, path));
-            return true;
+            status = true;
         }
-        LOG_CRITICAL("{} not supported by the resource manager", typeid(T).name());
-        return false;
+        if (status == false) {
+            LOG_CRITICAL("{} not supported by the resource manager", typeid(T).name());
+        }
+        return status;
     }
 
     template <typename T>
@@ -212,6 +219,60 @@ private:
         }
     }
 
+    json Serialize() {
+        json resourcePool;
+        int i = 0;
+        for (auto &[key, value] : uTextures) {
+            resourcePool[i]["key"] = key;
+            resourcePool[i]["value"] = value.get()->path;
+            resourcePool[i]["type"] = "tex";
+            resourcePool[i]["is_editor"] = false;
+            i++;
+        }
+
+        for (auto &[key, value] : uTextureAtlases) {
+            resourcePool[i]["key"] = key;
+            resourcePool[i]["value"] = value.get()->path;
+            resourcePool[i]["type"] = "atlas";
+            resourcePool[i]["is_editor"] = false;
+            i++;
+        }
+            
+        for (auto &[key, value] : uShaders) {
+            resourcePool[i]["key"] = key;
+            resourcePool[i]["value"] = value.get()->path;
+            resourcePool[i]["type"] = "shader";
+            resourcePool[i]["is_editor"] = false;
+            i++;
+        }
+
+        return resourcePool;
+    }
+
+    void Deserialize(json& value, std::filesystem::path rootPath) {
+        LOG_DEBUG("Deserializing resource json");
+        
+        for (auto &element : value) {
+            std::string key = element["key"];
+            std::string value = element["value"];
+            std::string type = element["type"];
+            bool isEditor = element["is_editor"];
+        
+            if (type == "tex") {
+                LoadProjectResource<Texture>(key, rootPath / value);
+                LOG_DEBUG("Loaded texture {}", key);
+            }
+            else if (type == "atlas") {
+                LoadProjectResource<TextureAtlas>(key, rootPath / value);
+                LOG_DEBUG("Loaded texture atlas {}", key);
+            }
+            else if (type == "shader") {
+                LoadProjectResource<Shader>(key, rootPath / value);
+                LOG_DEBUG("Loaded shader {}", key);
+            }
+        }
+    }
+
     void CleanupImpl() {
         uTextures.clear();
         uTextureAtlases.clear();
@@ -220,6 +281,7 @@ private:
         uEngineTextureAtlases.clear();
         uEngineShaders.clear();
     }
+
 private:
     std::unordered_map<std::string, std::unique_ptr<Texture>> uTextures;    //https://duckduckgo.com/
     std::unordered_map<std::string, std::unique_ptr<TextureAtlas>> uTextureAtlases;
@@ -231,6 +293,8 @@ private:
 
 friend class ImGuiResourcesPanel;
 friend class ImGuiFileManagerPanel;
+friend class EditorState;
 friend class Engine;
+friend class Project;
 };
 }

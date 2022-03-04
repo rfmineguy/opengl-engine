@@ -2,8 +2,10 @@
 
 #include "core/entity/entity.h"
 #include "core/components/components.h"
-#include "renderer/renderer2D.h"
+//#include "renderer/renderer2D.h"
+#include "renderer/renderer2D_v2.h"
 #include "window/inputData.h"
+#include "util/resourceManager.h"
 
 namespace Firefly {
 
@@ -13,12 +15,6 @@ Scene::Scene() {
     root->GetComponent<Relationship>().isParent = true;
     root->GetComponent<Relationship>().level = 0;
     root->AddComponent<Identifier>("root", "root");
-
-    Entity* e = CreateEntity("Camera");
-    e->AddComponent<Relationship>(false, false, 0, "root");
-    e->AddComponent<Identifier>("cam-prim", "Primary Camera");
-    e->AddComponent<Transform>(0, 0, 1, 1, 0);
-    //e->AddComponent<OrthoCameraTest>();
 }
 
 Scene::~Scene() {
@@ -30,22 +26,21 @@ void Scene::Draw() {
 }
 
 void Scene::Draw(FrameBuffer& fb) {
-    fb.Bind();
-    glClearColor(0.7f, 0.7f, 0.7f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-    
-    for (const auto& entity : uEntities) {
+    Renderer2D_V2::BeginScene(Camera(), fb, clearColor);
+    for (const auto& [name, entity] : uEntities) {
         OrthoCamera& primaryCam = Camera();
-        Renderer2D::Draw(*entity.second.get(), primaryCam);
+        Transform& t = entity.get()->GetComponent<Transform>();
+        SpriteRenderer& sp = entity.get()->GetComponent<SpriteRenderer>();
+        TextureAtlas* ta = ResourceManager::GetProjectResource<TextureAtlas>("spritesheet");
+        Renderer2D_V2::DrawQuad(t, ta, "bigx");
     }
-    fb.Unbind();
+    Renderer2D_V2::EndScene();
 }
 
 void Scene::Update(float dt) {
     if (state == SceneState::PLAYING && focused) {
         OrthoCamera& primaryCam = Camera();
         primaryCam.Movement();
-        glm::vec2 worldMouse = primaryCam.ScreenToWorld(Input.mouse);
     }
 }
 
@@ -67,9 +62,6 @@ void Scene::Stop() {
 Entity* Scene::CreateEntity(const std::string& id) {
     if (uEntities.count(id) == 0) {
         uEntities.emplace(id, std::make_unique<Entity>(this, id));
-    }
-    else {
-        return nullptr;
     }
     Entity* e = FindEntity(id);
     e->AddComponent<Transform>(0, 0, 32, 32, 0);
@@ -102,7 +94,6 @@ Entity* Scene::FindPrimaryCamera() {
 }
 
 bool Scene::DestroyEntity(const std::string& id) {
-    //UNIMPLEMENTED
-    return false;
+    return uEntities.erase(id);
 }
 }
